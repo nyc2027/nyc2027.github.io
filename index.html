@@ -558,13 +558,170 @@
   }
   .row-lodge .row-time { color: var(--muted); }
   .row-lodge .row-name { font-size: 14px; font-weight: 500; color: var(--muted); }
-  .leg {
-    padding: 0 0 6px 52px;
-    font: 500 11.5px/1.2 var(--f-head);
+  /* ---------- 이동 구간 (지하철 타는 법) ---------- */
+  .leg { padding: 2px 0 8px 52px; }
+  .leg-plain {
+    padding: 2px 0;
+    font: 500 11.5px/1.3 var(--f-head);
     letter-spacing: .01em;
     color: var(--muted);
     font-variant-numeric: tabular-nums;
   }
+  .leg-plain.is-loading { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .45; } }
+  .leg-sum {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--ink);
+    text-align: left;
+    font: 500 12.5px/1.3 var(--f-body);
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .leg-sum:hover { border-color: color-mix(in srgb, var(--ct) 55%, var(--line)); }
+  .leg-sum:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .leg-sum b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .leg.is-open .leg-sum { border-color: color-mix(in srgb, var(--ct) 55%, var(--line)); box-shadow: var(--shadow); }
+  .lg-ico { display: grid; color: var(--muted); }
+  .lg-ico svg, .st-ico > svg { width: 16px; height: 16px; }
+  .lg-lines { display: inline-flex; align-items: center; gap: 3px; }
+  .lg-arrow { font-style: normal; color: var(--muted); margin: 0 1px; }
+  .leg-meta { color: var(--muted); font-size: 12px; }
+  .lg-warn {
+    display: grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: #d69e2e;
+    color: #fff;
+    font: 700 11px/1 var(--f-head);
+  }
+  .chev { margin-left: auto; display: grid; color: var(--muted); transition: transform .2s; }
+  .chev svg { width: 16px; height: 16px; }
+  .leg.is-open .chev { transform: rotate(180deg); }
+  .leg-detail {
+    margin-top: 8px;
+    padding: 12px 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .leg-basis { margin: 0 0 10px; font-size: 12px; color: var(--muted); word-break: keep-all; }
+  .leg-link {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink);
+    font: 600 12px/1 var(--f-body);
+    text-decoration: none;
+  }
+  .leg-link:hover { background: var(--line); }
+  .leg-alt { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .leg-alt-title { margin: 0 0 4px; font-weight: 600; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .st { display: grid; grid-template-columns: 30px minmax(0, 1fr); column-gap: 8px; }
+  .st-ico { display: grid; justify-items: center; align-content: start; padding-top: 1px; color: var(--muted); }
+  .st-body p { margin: 0; }
+  .st-title b { font-weight: 600; }
+  .st-dir { color: var(--muted); }
+  .st-route { margin-top: 2px !important; word-break: keep-all; }
+  .st-route b { font-weight: 600; }
+  .st-sub { margin-top: 2px !important; font-size: 12px; color: var(--muted); word-break: break-word; }
+  .turns { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--muted); display: grid; gap: 3px; }
+  .turns li::marker { font: 600 11px var(--f-head); }
+
+  /* 지하철 노선 기호 */
+  .bullet {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 11px;
+    background: var(--lc);
+    color: var(--lt);
+    font: 700 12.5px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    white-space: nowrap;
+  }
+  .bullet.is-x { /* 급행: 마름모 */
+    min-width: 0;
+    width: 17px;
+    height: 17px;
+    margin: 0 3px;
+    padding: 0;
+    border-radius: 2px;
+    transform: rotate(45deg);
+  }
+  .bullet.is-x > span { transform: rotate(-45deg); font-size: 11px; }
+  .bullet.is-wide { padding: 0 7px; font-size: 11px; }
+  .bullet.is-sq { border-radius: 5px; }
+
+  /* 첫차·막차 칩 */
+  .svc {
+    display: inline-block;
+    margin-top: 5px !important;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font: 600 11.5px/1.3 var(--f-body);
+  }
+  .svc.ok { background: rgba(31, 157, 85, .13); color: #17804a; }
+  .svc.warn { background: rgba(214, 158, 46, .18); color: #8a5a00; }
+  @media (prefers-color-scheme: dark) {
+    .svc.ok { background: rgba(95, 211, 143, .14); color: #6fdc9c; }
+    .svc.warn { background: rgba(242, 194, 91, .16); color: #f2c25b; }
+  }
+  .day-lines {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .day-lines .svc { margin-top: 0 !important; }
+  .dl-label { font: 600 12px/1 var(--f-body); color: var(--muted); }
+  .dl-bullets { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+  .routes-off { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); word-break: keep-all; }
+  .routes-off b { color: var(--ink); }
+
+  /* 지도 위 승차·하차 역 */
+  .st-dot {
+    width: 12px;
+    height: 12px;
+    border: 3px solid var(--lc);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+    transform: translateY(50%);
+  }
+
+  /* 지하철 팁 */
+  .tips {
+    margin-top: 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .tips summary { padding: 10px 12px; cursor: pointer; font-weight: 600; color: var(--ink); }
+  .tips ul { margin: 0; padding: 0 14px 12px 30px; color: var(--muted); display: grid; gap: 4px; word-break: keep-all; }
   .panel-foot {
     margin: 18px 0 0;
     padding-top: 14px;
@@ -662,7 +819,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
   // color: [기본 색(마커·라이트모드 선), 다크모드용 밝은 색]
   const DAYS = [
     {
-      y: 2026, m: 12, d: 27, dow: '일', title: '도착 & 미술관', base: '우드사이드',
+      y: 2026, m: 12, d: 27, dow: '일', title: '도착 & 미술관', base: '우드사이드', back: '22:00',
       color: ['#c0392b', '#ef7064'],
       from: null,
       to: { id: 'woodside', label: '우드사이드 숙소 체크인', tag: '체크인' },
@@ -673,7 +830,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       ],
     },
     {
-      y: 2026, m: 12, d: 28, dow: '월', title: '미술관 & 뮤지컬', badge: '피크데이', base: '우드사이드',
+      y: 2026, m: 12, d: 28, dow: '월', title: '미술관 & 뮤지컬', badge: '피크데이', base: '우드사이드', back: '22:00',
       color: ['#2563a8', '#70a8ea'],
       from: { id: 'woodside', label: '우드사이드에서 출발' },
       to: { id: 'woodside', label: '우드사이드로 복귀' },
@@ -684,21 +841,22 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       ],
     },
     {
-      y: 2026, m: 12, d: 29, dow: '화', title: '다운타운 & 빌리지 밤', base: '우드사이드',
+      y: 2026, m: 12, d: 29, dow: '화', title: '다운타운 & 빌리지 밤', base: '우드사이드', back: '23:00',
       color: ['#0f7d68', '#45c7a6'],
       from: { id: 'woodside', label: '우드사이드에서 출발' },
       to: { id: 'woodside', label: '우드사이드로 복귀' },
       stops: [
         { t: '11:00', name: '스태튼아일랜드 페리', memo: '자유의여신상 조망, 무료', short: '페리', lat: 40.7013, lng: -74.0133 },
         { t: '12:30', name: '월가 황소', memo: '차징불 · 월스트리트', short: '월가 황소', lat: 40.7056, lng: -74.0134 },
-        { t: '14:00', name: '덤보', memo: '브루클린 브릿지 건너 워싱턴 St 포토스팟', short: '덤보', lat: 40.7033, lng: -73.9903 },
+        { t: '14:00', name: '덤보', memo: '브루클린 브릿지 건너 워싱턴 St 포토스팟', short: '덤보', lat: 40.7033, lng: -73.9903,
+          via: 'WALKING', through: [[40.7061, -73.9969]], legNote: '브루클린 브리지 보행로' },
         { t: '16:00', name: "카츠 델리 or L'industrie 피자", memo: '리틀이탈리아 지점', short: "카츠 / L'industrie", lat: 40.7223, lng: -73.9874 },
         { t: '17:30', name: "McSorley's Old Ale House", memo: '1854년 역사적 펍', short: "McSorley's", lat: 40.7287, lng: -73.9896 },
         { t: '20:00', name: '재즈바', memo: '웨스트빌리지, 뱅가드 or 스몰스', short: '재즈바', lat: 40.7357, lng: -74.0014 },
       ],
     },
     {
-      y: 2026, m: 12, d: 30, dow: '수', title: '이사 & 전망대', base: '비스타 LIC (체크인)',
+      y: 2026, m: 12, d: 30, dow: '수', title: '이사 & 전망대', base: '비스타 LIC (체크인)', back: '20:00',
       color: ['#c2560c', '#f5934f'],
       from: { id: 'woodside', label: '우드사이드 체크아웃', tag: '체크아웃' },
       to: { id: 'lic', label: '비스타 LIC 체크인', tag: '체크인' },
@@ -706,12 +864,13 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         { t: '10:00', name: '써밋 원 밴더빌트', memo: '오전 전망대, 42가', short: '써밋', lat: 40.7527, lng: -73.9787 },
         { t: '12:30', name: '첼시마켓', memo: '로브스터롤', short: '첼시마켓', lat: 40.7425, lng: -74.0061 },
         { t: '13:30', name: '리틀아일랜드', memo: '허드슨강 위 공원', short: '리틀아일랜드', lat: 40.7420, lng: -74.0103 },
-        { t: '14:00', name: '하이라인 · Vessel', memo: '고가 산책 · 벌집 조형물', short: '하이라인 · Vessel', lat: 40.7536, lng: -74.0019 },
+        { t: '14:00', name: '하이라인 · Vessel', memo: '고가 산책 · 벌집 조형물', short: '하이라인 · Vessel', lat: 40.7536, lng: -74.0019,
+          via: 'WALKING', through: [[40.7465, -74.0060]], legNote: '하이라인 위로 걷기' },
         { t: '18:00', name: '웨스트빌리지 스테이크', memo: '부쉐리 등', short: '스테이크', lat: 40.7336, lng: -74.0027 },
       ],
     },
     {
-      y: 2026, m: 12, d: 31, dow: '목', title: '볼드랍', base: '비스타 LIC',
+      y: 2026, m: 12, d: 31, dow: '목', title: '볼드랍', base: '비스타 LIC', back: '00:30',
       color: ['#9a6d00', '#ebbd3e'],
       from: { id: 'lic', label: '비스타 LIC에서 출발' },
       to: { id: 'lic', label: '비스타 LIC로 복귀' },
@@ -721,7 +880,9 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       ],
     },
     {
-      y: 2027, m: 1, d: 1, dow: '금', title: '회복 & 마무리', base: '비스타 LIC',
+      y: 2027, m: 1, d: 1, dow: '금', title: '회복 & 마무리', base: '비스타 LIC', back: '19:00',
+      // 1/1은 공휴일이라 실제 운행이 주말형에 가깝다 → 다음 일요일(1/3) 시간표로 경로 계산
+      svcDate: '2027-01-03', svcNote: '1/1 공휴일이라 일요일 시간표로 계산',
       color: ['#7d3c98', '#c18ee0'],
       from: { id: 'lic', label: '비스타 LIC에서 출발' },
       to: { id: 'lic', label: '비스타 LIC로 복귀' },
@@ -738,7 +899,8 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       to: null,
       stops: [
         { t: '06:00', name: '비스타 LIC 출발', memo: '우버 추천', short: '비스타 LIC', home: 'lic', lat: 40.7490, lng: -73.9400 },
-        { t: '07:15', name: 'JFK 공항', memo: '', short: 'JFK', lat: 40.6413, lng: -73.7781 },
+        { t: '07:15', name: 'JFK 공항', memo: '', short: 'JFK', lat: 40.6413, lng: -73.7781,
+          via: 'DRIVING', alt: 'TRANSIT', legNote: '우버 기준' },
       ],
     },
   ];
@@ -769,14 +931,14 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
 
   // 리스트에 표시할 행: (출발 숙소) → 방문지들 → (복귀 숙소)
   function buildRows(day) {
-    const lodgeRow = (ref) => {
+    const lodgeRow = (ref, role) => {
       const L = LODGES[ref.id];
-      return { key: 'l-' + ref.id, kind: 'lodge', id: ref.id, label: ref.label, short: L.short, lat: L.lat, lng: L.lng };
+      return { key: 'l-' + ref.id, kind: 'lodge', role, id: ref.id, label: ref.label, short: L.short, lat: L.lat, lng: L.lng };
     };
     const rows = [];
-    if (day.from) rows.push(lodgeRow(day.from));
+    if (day.from) rows.push(lodgeRow(day.from, 'from'));
     day.stops.forEach((s, i) => rows.push({ key: 's' + i, kind: 'stop', n: i + 1, ...s }));
-    if (day.to) rows.push(lodgeRow(day.to));
+    if (day.to) rows.push(lodgeRow(day.to, 'to'));
     return rows;
   }
 
@@ -806,9 +968,397 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
   const dirUrl = (a, b) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lng}&destination=${b.lat},${b.lng}&travelmode=transit`;
 
   /* ------------------------------------------------------------------
+   * 이동 구간(leg)과 실제 경로 (Google Routes API)
+   * ------------------------------------------------------------------ */
+  const WALK_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M13.5 5.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM9.8 8.9 7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.3 7.3 0 0 0 19 13v-2a5.1 5.1 0 0 1-4.4-2.5l-1-1.6a2 2 0 0 0-1.7-1c-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>';
+  const CAR_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.9 6c-.2-.6-.8-1-1.4-1h-11c-.7 0-1.2.4-1.4 1L3 12v8c0 .6.4 1 1 1h1c.6 0 1-.4 1-1v-1h12v1c0 .6.4 1 1 1h1c.6 0 1-.4 1-1v-8l-2.1-6ZM6.5 16a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm11 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3ZM5 11l1.5-4.5h11L19 11H5Z"/></svg>';
+  const CHEV = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  const pad2 = n => String(n).padStart(2, '0');
+  const nyFmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  const nyTime = d => (d instanceof Date && !isNaN(d) ? nyFmt.format(d) : '');
+  const fmtMs = ms => {
+    const m = Math.max(1, Math.round(ms / 60000));
+    return m < 60 ? `${m}분` : `${Math.floor(m / 60)}시간${m % 60 ? ` ${m % 60}분` : ''}`;
+  };
+  const fmtM = m => fmtDist(m / 1000);
+  const safeColor = (c, fallback) => (/^#[0-9a-f]{3,8}$/i.test(c || '') ? c : fallback);
+
+  // 여행 날짜 + 시각(뉴욕 12~1월은 EST, UTC-5) → Date
+  function tripTime(day, t, isBack) {
+    const [y, m, d] = (day.svcDate || `${day.y}-${pad2(day.m)}-${pad2(day.d)}`).split('-').map(Number);
+    let ms = Date.UTC(y, m - 1, d);
+    if (isBack && t < day.stops[day.stops.length - 1].t) ms += 864e5; // 자정 넘어 복귀
+    return new Date(`${new Date(ms).toISOString().slice(0, 10)}T${t}:00-05:00`);
+  }
+
+  // 리스트의 행 사이마다 이동 구간 하나. 1.25km 이하는 도보, 그 외는 지하철. 장소에 via가 있으면 그 수단.
+  function buildLegs(day) {
+    const rows = buildRows(day);
+    const legs = [];
+    for (let j = 0; j < rows.length - 1; j++) {
+      const a = rows[j], b = rows[j + 1];
+      const mode = b.via || (km(a, b) <= 1.25 ? 'WALKING' : 'TRANSIT');
+      let timeType = null, time = null;
+      if (mode === 'TRANSIT') {
+        if (b.kind === 'stop') { timeType = 'arr'; time = tripTime(day, b.t); }
+        else if (day.back) { timeType = 'dep'; time = tripTime(day, day.back, true); }
+      }
+      const leg = { j, a, b, mode, timeType, time, through: b.through || null, note: b.legNote || null,
+        lodge: a.kind === 'lodge' || b.kind === 'lodge', svcNote: day.svcNote || null, altLeg: null };
+      leg.sig = legSig(leg);
+      if (b.alt) {
+        leg.altLeg = { ...leg, mode: b.alt, anyTransit: true, timeType: 'dep', time: tripTime(day, a.t || '12:00'), through: null };
+        leg.altLeg.sig = legSig(leg.altLeg);
+      }
+      legs.push(leg);
+    }
+    return legs;
+  }
+  function legSig(l) {
+    return [l.mode, l.anyTransit ? 'any' : 'sub', `${l.a.lat},${l.a.lng}`, `${l.b.lat},${l.b.lng}`,
+      l.timeType || '', l.time ? l.time.toISOString() : '', JSON.stringify(l.through || '')].join('|');
+  }
+
+  const r5 = n => Math.round(n * 1e5) / 1e5;
+  const num = v => (typeof v === 'function' ? v() : v);
+  const toPts = arr => (arr || []).map(p => [r5(num(p.lat)), r5(num(p.lng))]);
+  const stopOf = s => ({
+    name: (s && s.name) || '',
+    lat: s && s.location ? r5(num(s.location.lat)) : null,
+    lng: s && s.location ? r5(num(s.location.lng)) : null,
+  });
+
+  // Routes API 결과 → 화면에서 쓰는 단순한 구조 (localStorage 캐시용)
+  function normalize(route, leg, timed) {
+    const L = route.legs[0];
+    const segs = [];
+    let cur = null;
+    for (const st of L.steps || []) {
+      const td = st.transitDetails;
+      if (td) {
+        cur = null;
+        const line = td.transitLine || {};
+        const veh = line.vehicle || {};
+        const dep = nyTime(td.departureTime);
+        segs.push({
+          kind: 'transit', path: toPts(st.path),
+          short: line.shortName || '', name: line.name || '', color: line.color || '', text: line.textColor || '',
+          veh: veh.vehicleType || '', agency: (line.agencies && line.agencies[0] && line.agencies[0].name) || '',
+          headsign: td.headsign || '', stops: td.stopCount || 0,
+          from: stopOf(td.departureStop), to: stopOf(td.arrivalStop),
+          depH: dep ? Number(dep.slice(0, 2)) : null,
+          ms: st.staticDurationMillis || 0,
+          headway: td.headwayMillis ? Math.round(td.headwayMillis / 60000) : 0,
+        });
+      } else {
+        const kind = leg.mode === 'DRIVING' ? 'drive' : 'walk';
+        if (!cur) { cur = { kind, path: [], m: 0, ms: 0, instr: [] }; segs.push(cur); }
+        const p = toPts(st.path);
+        cur.path.push(...(cur.path.length ? p.slice(1) : p));
+        cur.m += st.distanceMeters || 0;
+        cur.ms += st.staticDurationMillis || 0;
+        const ins = (st.instructions || '').trim();
+        if (ins) cur.instr.push(ins.replace(/\s*\n\s*/g, ' · '));
+      }
+    }
+    segs.forEach((s, i) => {
+      if (s.kind !== 'walk') return;
+      const prev = segs[i - 1], next = segs[i + 1];
+      s.to = next && next.kind === 'transit' ? next.from.name : null;
+      s.transfer = !!(prev && prev.kind === 'transit' && next && next.kind === 'transit');
+    });
+    return {
+      ok: true, at: Date.now(), mode: leg.mode, timed,
+      ms: route.durationMillis || 0, m: route.distanceMeters || 0,
+      fare: (route.localizedValues && route.localizedValues.transitFare) || '',
+      segs,
+    };
+  }
+
+  const Routes = {
+    lib: null, mem: new Map(), inflight: new Map(), disabled: false,
+    VER: 'nyc-route-v1', TTL: 7 * 864e5,
+
+    peek(leg) {
+      if (!leg) return null;
+      if (this.mem.has(leg.sig)) return this.mem.get(leg.sig);
+      try {
+        const raw = localStorage.getItem(`${this.VER}:${leg.sig}`);
+        const o = raw && JSON.parse(raw);
+        if (o && o.ok && Date.now() - o.at < this.TTL) { this.mem.set(leg.sig, o); return o; }
+      } catch (e) { /* 무시 */ }
+      return null;
+    },
+
+    get(leg) {
+      const hit = this.peek(leg);
+      if (hit) return Promise.resolve(hit);
+      if (this.inflight.has(leg.sig)) return this.inflight.get(leg.sig);
+      const p = this.compute(leg).then(res => {
+        this.inflight.delete(leg.sig);
+        this.mem.set(leg.sig, res);
+        if (res.ok) { try { localStorage.setItem(`${this.VER}:${leg.sig}`, JSON.stringify(res)); } catch (e) { /* 무시 */ } }
+        return res;
+      });
+      this.inflight.set(leg.sig, p);
+      return p;
+    },
+
+    async compute(leg) {
+      try {
+        if (!this.lib) this.lib = await google.maps.importLibrary('routes');
+      } catch (e) { return { ok: false, err: 'routes 라이브러리 로드 실패' }; }
+      const base = {
+        origin: { lat: leg.a.lat, lng: leg.a.lng },
+        destination: { lat: leg.b.lat, lng: leg.b.lng },
+        travelMode: leg.mode,
+        language: 'en', region: 'us', // 역·노선 이름을 현지 표지판과 같은 영어로
+        units: google.maps.UnitSystem.METRIC,
+        fields: ['path', 'legs', 'durationMillis', 'distanceMeters', 'localizedValues'],
+      };
+      if (leg.through) base.intermediates = leg.through.map(([lat, lng]) => ({ location: { lat, lng }, via: true }));
+
+      // 시도 순서: 지하철만+여행 시각 → 전체+여행 시각 → 지하철만+현재 → 전체+현재
+      const tKey = leg.timeType === 'arr' ? 'arrivalTime' : 'departureTime';
+      const subwayOnly = leg.mode === 'TRANSIT' && !leg.anyTransit;
+      const SUB = { allowedTransitModes: ['SUBWAY'] };
+      const tries = [];
+      if (leg.mode === 'TRANSIT' && leg.time) {
+        if (subwayOnly) tries.push([{ ...base, transitPreference: SUB, [tKey]: leg.time }, true]);
+        tries.push([{ ...base, [tKey]: leg.time }, true]);
+      }
+      if (subwayOnly) tries.push([{ ...base, transitPreference: SUB }, false]);
+      tries.push([base, false]);
+
+      let err = null;
+      for (const [req, timed] of tries) {
+        try {
+          const { routes } = await this.lib.Route.computeRoutes(req);
+          if (routes && routes.length) return normalize(routes[0], leg, timed);
+        } catch (e) {
+          err = e;
+          if (/PERMISSION_DENIED|SERVICE_BLOCKED|has not been used|is disabled|REQUEST_DENIED|API_KEY/i.test(String(e && e.message))) {
+            this.disabled = true;
+            console.warn('Routes API 사용 불가:', e);
+            break;
+          }
+        }
+      }
+      return { ok: false, err: String((err && err.message) || '경로 없음') };
+    },
+  };
+
+  /* 노선 운행 시간 (뉴욕 지하철, MTA 운행 안내 기준. 심야 = 대략 0시~6시) */
+  const SUBWAY_24H = new Set(['1', '2', '4', '6', '7', 'A', 'D', 'E', 'F', 'G', 'J', 'L', 'N', 'Q', 'SI', 'SIR']);
+  const SUBWAY_PART = {
+    '3': ['24시간 · 심야엔 구간 단축', '심야엔 할렘–Times Sq-42 St 구간만 운행 → 그 남쪽은 1 이용'],
+    '5': ['심야 맨해튼 미운행', '심야엔 맨해튼을 지나지 않아요 → 4 이용'],
+    'B': ['평일 주간만 운행', '주말·공휴일·심야엔 운행 안 함 → 같은 6 Av 구간은 D·F 이용'],
+    'C': ['심야 미운행', '심야엔 A가 C 역에 모두 정차'],
+    'M': ['심야 맨해튼 미운행', '심야엔 맨해튼 구간 운행 안 함, 주말엔 구간 변경이 잦음 → F 이용'],
+    'R': ['심야 맨해튼·퀸스 미운행', '심야엔 맨해튼은 N, 퀸스는 E·F가 대신 정차'],
+    'W': ['평일 주간만 운행', '주말·공휴일·심야엔 운행 안 함 → N·R 이용'],
+    'Z': ['평일 출퇴근 시간만', '그 외 시간엔 J 이용 (24시간)'],
+  };
+  const VEH_KO = { SUBWAY: '지하철', BUS: '버스', INTERCITY_BUS: '버스', TROLLEYBUS: '버스', TRAM: '경전철', LIGHT_RAIL: '경전철', MONORAIL: '경전철', FERRY: '페리' };
+  const vehKo = v => VEH_KO[v] || (/RAIL|TRAIN/.test(v || '') ? '기차' : '대중교통');
+  const isExpress = s => s.veh === 'SUBWAY' && /^[0-9A-Z]X$/i.test(s.short);
+  const lineCode = s => (isExpress(s) ? s.short[0] : s.short).toUpperCase();
+  const isAirTrain = s => /airtrain/i.test(`${s.name} ${s.agency}`);
+
+  function lineLabel(s) {
+    if (isAirTrain(s)) return 'JFK 에어트레인';
+    return s.short ? `${vehKo(s.veh)} ${lineCode(s)}${isExpress(s) ? ' 급행' : ''}` : `${vehKo(s.veh)} · ${s.name}`;
+  }
+
+  // 첫차·막차 안내
+  function svcInfo(s) {
+    if (isAirTrain(s)) return { cls: 'ok', text: '24시간 운행 · 첫차·막차 없음', note: '지하철과 요금 따로' };
+    if (s.veh !== 'SUBWAY') return { cls: 'warn', text: `${vehKo(s.veh)} 첫차·막차 확인 필요`, note: '노선마다 운행 시간이 달라요' };
+    const code = lineCode(s);
+    if (isExpress(s)) return { cls: 'warn', text: '급행은 평일 출퇴근 시간만', note: `그 외 시간엔 같은 승강장의 ${code} 완행 이용 (24시간 운행)` };
+    if (code === 'S') {
+      return /42|grand central|times sq/i.test(s.name)
+        ? { cls: 'warn', text: '심야 미운행', note: '심야엔 운행 안 함 → 7 이용' }
+        : { cls: 'ok', text: '24시간 운행 · 첫차·막차 없음', note: '' };
+    }
+    if (SUBWAY_24H.has(code)) return { cls: 'ok', text: '24시간 운행 · 첫차·막차 없음', note: '심야(0~6시경)엔 약 20분 간격' };
+    const p = SUBWAY_PART[code];
+    return p ? { cls: 'warn', text: p[0], note: p[1] } : { cls: 'warn', text: '첫차·막차 확인 필요', note: '' };
+  }
+
+  function bullet(s) {
+    const label = isAirTrain(s) ? 'AirTrain' : (s.short ? lineCode(s) : vehKo(s.veh));
+    const cls = s.veh === 'SUBWAY' ? (isExpress(s) ? ' is-x' : (label.length > 2 ? ' is-wide' : '')) : ' is-wide is-sq';
+    return `<span class="bullet${cls}" style="--lc:${safeColor(s.color, '#5b697d')};--lt:${safeColor(s.text, '#ffffff')}" title="${esc(lineLabel(s))}"><span>${esc(label)}</span></span>`;
+  }
+
+  const gmDir = (leg, mode) => {
+    const tm = { WALKING: 'walking', TRANSIT: 'transit', DRIVING: 'driving' }[mode] || 'transit';
+    const wp = leg.through && mode === 'WALKING' ? `&waypoints=${encodeURIComponent(leg.through.map(p => p.join(',')).join('|'))}` : '';
+    return `https://www.google.com/maps/dir/?api=1&origin=${leg.a.lat},${leg.a.lng}&destination=${leg.b.lat},${leg.b.lng}&travelmode=${tm}${wp}`;
+  };
+  const legDest = leg => (leg.b.kind === 'lodge' ? LODGES[leg.b.id].short : leg.b.short);
+
+  function stepsHtml(res, destName) {
+    const segs = res.segs;
+    return `<ol class="steps">${segs.map((s, i) => {
+      if (s.kind === 'transit') {
+        const info = svcInfo(s);
+        const sub = [
+          s.short && s.name && !isAirTrain(s) ? esc(s.name) : '',
+          s.headway ? `배차 약 ${s.headway}분` : '',
+          s.depH != null && s.depH < 6 ? '심야 시간대' : '',
+        ].filter(Boolean).join(' · ');
+        return `<li class="st"><span class="st-ico">${bullet(s)}</span><div class="st-body">
+          <p class="st-title"><b>${esc(lineLabel(s))}</b>${s.headsign ? ` <span class="st-dir">${esc(s.headsign)} 방면</span>` : ''}</p>
+          <p class="st-route"><b>${esc(s.from.name)}</b> 승차 → ${s.stops ? `${s.stops}개 역 · ` : ''}${fmtMs(s.ms)} → <b>${esc(s.to.name)}</b> 하차</p>
+          ${sub ? `<p class="st-sub">${sub}</p>` : ''}
+          <p class="svc ${info.cls}">${esc(info.text)}</p>${info.note ? `<p class="st-sub">${esc(info.note)}</p>` : ''}
+        </div></li>`;
+      }
+      if (s.kind !== 'walk' || s.m < 1) return '';
+      const target = s.to ? `${esc(s.to)} 역까지` : (i === segs.length - 1 ? `${esc(destName)}까지` : '');
+      const doors = s.instr
+        .filter(x => /^Take (entrance|exit)\s+\S/i.test(x))
+        .map(x => x.replace(/^Take entrance\s*/i, '입구 · ').replace(/^Take exit\s*/i, '출구 · '));
+      return `<li class="st st-walk"><span class="st-ico">${WALK_ICO}</span><div class="st-body">
+        <p class="st-title"><b>${s.transfer ? '환승 도보' : '도보'} ${fmtMs(s.ms)}</b> <span class="st-dir">${fmtM(s.m)}${target ? ` · ${target}` : ''}</span></p>
+        ${doors.map(x => `<p class="st-sub">${esc(x)}</p>`).join('')}
+      </div></li>`;
+    }).join('')}</ol>`;
+  }
+
+  function legSummary(leg, res) {
+    const tr = res.segs.filter(s => s.kind === 'transit');
+    if (res.mode === 'DRIVING') {
+      return `<span class="lg-ico">${CAR_ICO}</span><b>차량 ${fmtMs(res.ms)}</b><span class="leg-meta">${fmtM(res.m)}${leg.note ? ` · ${esc(leg.note)}` : ''}</span>`;
+    }
+    if (!tr.length) {
+      return `<span class="lg-ico">${WALK_ICO}</span><b>도보 ${fmtMs(res.ms)}</b><span class="leg-meta">${fmtM(res.m)}${leg.note ? ` · ${esc(leg.note)}` : ''}</span>`;
+    }
+    const walkMs = res.segs.reduce((a, s) => a + (s.kind === 'walk' ? s.ms : 0), 0);
+    const warn = tr.some(s => svcInfo(s).cls !== 'ok');
+    const meta = [leg.lodge ? '숙소 이동' : '', walkMs >= 60000 ? `도보 ${fmtMs(walkMs)}` : ''].filter(Boolean).join(' · ');
+    return `<span class="lg-lines">${tr.map(bullet).join('<i class="lg-arrow" aria-hidden="true">›</i>')}</span><b>${fmtMs(res.ms)}</b>${meta ? `<span class="leg-meta">${meta}</span>` : ''}${warn ? '<span class="lg-warn" title="운행 시간 주의">!</span>' : ''}`;
+  }
+
+  function legDetail(leg, res) {
+    const dest = legDest(leg);
+    const hasTransit = res.segs.some(s => s.kind === 'transit');
+    const basis = [];
+    let body = '';
+    if (hasTransit) {
+      basis.push(res.timed && leg.time ? `${nyTime(leg.time)} ${leg.timeType === 'arr' ? '도착' : '출발'} 기준` : '현재 시간표 기준');
+      if (res.timed && leg.svcNote) basis.push(leg.svcNote);
+      if (res.fare) basis.push(`요금 ${res.fare}${res.segs.some(s => s.kind === 'transit' && isAirTrain(s)) ? ' + 에어트레인 별도' : ''}`);
+      body = stepsHtml(res, dest);
+    } else if (res.mode === 'DRIVING') {
+      basis.push(`약 ${fmtMs(res.ms)} · ${fmtM(res.m)}`, '교통 상황에 따라 달라져요');
+    } else {
+      basis.push(`도보 약 ${fmtMs(res.ms)} · ${fmtM(res.m)}`);
+      if (leg.note) basis.push(leg.note);
+      const turns = res.segs.flatMap(s => s.instr || []);
+      body = turns.length ? `<ol class="turns">${turns.map(t => `<li>${esc(t)}</li>`).join('')}</ol>` : '';
+    }
+    let alt = '';
+    const ar = leg.altLeg && Routes.peek(leg.altLeg);
+    if (ar && ar.ok) {
+      const ab = [ar.timed ? `${nyTime(leg.altLeg.time)} 출발 기준` : '현재 시간표 기준'];
+      if (ar.fare) ab.push(`요금 ${ar.fare}${ar.segs.some(s => s.kind === 'transit' && isAirTrain(s)) ? ' + 에어트레인 별도' : ''}`);
+      alt = `<div class="leg-alt"><p class="leg-alt-title">대중교통으로 가려면 · 약 ${fmtMs(ar.ms)}</p>
+        <p class="leg-basis">${ab.map(esc).join(' · ')}</p>${stepsHtml(ar, dest)}
+        <a class="leg-link" href="${esc(gmDir(leg.altLeg, 'TRANSIT'))}" target="_blank" rel="noopener">대중교통 길안내 열기</a></div>`;
+    }
+    return `<p class="leg-basis">${basis.map(esc).join(' · ')}</p>${body}
+      <a class="leg-link" href="${esc(gmDir(leg, res.mode))}" target="_blank" rel="noopener">Google 지도 앱에서 길안내</a>${alt}`;
+  }
+
+  function legHtml(leg) {
+    const live = view === GMap && !Routes.disabled;
+    const res = live ? Routes.peek(leg) : null;
+    const straight = `${leg.lodge ? '숙소 이동 · ' : ''}직선 ${fmtDist(km(leg.a, leg.b))}`;
+    if (!live) return `<div class="leg-plain">${straight}</div>`;
+    if (!res) {
+      const failed = Routes.mem.has(leg.sig) && !Routes.inflight.has(leg.sig);
+      return `<div class="leg-plain${failed ? '' : ' is-loading'}">${straight} · ${failed ? '경로 정보 없음' : '경로 계산 중…'}</div>`;
+    }
+    if (!res.ok) return `<div class="leg-plain">${straight} · 경로 정보 없음</div>`;
+    const open = state.openLegs.has(leg.j);
+    return `<button type="button" class="leg-sum" data-leg="${leg.j}" aria-expanded="${open}">${legSummary(leg, res)}<span class="chev">${CHEV}</span></button>
+      ${open ? `<div class="leg-detail">${legDetail(leg, res)}</div>` : ''}`;
+  }
+
+  function updateLegUI(leg) {
+    const el = document.getElementById(`leg-${leg.j}`);
+    if (!el) return;
+    el.innerHTML = legHtml(leg);
+    el.classList.toggle('is-open', state.openLegs.has(leg.j));
+  }
+  function refreshLegs(day) {
+    buildLegs(day).forEach(updateLegUI);
+    updateDayLines(day);
+  }
+
+  // 그날 타는 노선 요약 + 첫차·막차 주의
+  function updateDayLines(day) {
+    const el = document.getElementById('dayLines');
+    if (!el) return;
+    if (view === GMap && Routes.disabled) {
+      el.innerHTML = '<p class="routes-off">실제 경로를 불러오지 못했어요. Google Cloud에서 <b>Routes API</b>를 사용 설정하고, API 키 제한에 Routes API를 추가했는지 확인하세요.</p>';
+      el.hidden = false;
+      return;
+    }
+    const seen = new Map();
+    buildLegs(day).forEach(l => {
+      const r = view === GMap ? Routes.peek(l) : null;
+      if (r && r.ok) r.segs.forEach(s => { if (s.kind === 'transit') seen.set(`${s.veh}|${s.short}|${s.name}`, s); });
+    });
+    if (!seen.size) { el.hidden = true; el.innerHTML = ''; return; }
+    const list = [...seen.values()];
+    const warns = list.filter(s => svcInfo(s).cls !== 'ok');
+    el.innerHTML = `<span class="dl-label">이날 타는 노선</span><span class="dl-bullets">${list.map(bullet).join('')}</span>
+      ${warns.length
+        ? warns.map(s => `<span class="svc warn">${esc(lineLabel(s))} · ${esc(svcInfo(s).text)}</span>`).join('')
+        : '<span class="svc ok">모두 24시간 운행 · 막차 걱정 없음</span>'}`;
+    el.hidden = false;
+  }
+
+  function loadRoutes(day) {
+    if (view !== GMap || Routes.disabled) return;
+    buildLegs(day).forEach(leg => {
+      [leg, leg.altLeg].filter(Boolean).forEach(l => {
+        if (Routes.peek(l)) return;
+        Routes.get(l).then(() => onRoute(day, leg));
+      });
+    });
+  }
+  function onRoute(day, leg) {
+    if (DAYS[state.idx] !== day) return;
+    if (Routes.disabled) { refreshLegs(day); return; }
+    if (view === GMap && GMap.day === day) GMap.drawLeg(leg, Routes.peek(leg));
+    updateLegUI(leg);
+    updateDayLines(day);
+  }
+
+  function toggleLeg(j) {
+    const day = DAYS[state.idx];
+    const leg = buildLegs(day)[j];
+    if (!leg) return;
+    if (state.openLegs.has(j)) {
+      state.openLegs.delete(j);
+    } else {
+      state.openLegs.add(j);
+      if (view === GMap) { select(null); GMap.focusLeg(leg); }
+    }
+    updateLegUI(leg);
+  }
+
+  /* ------------------------------------------------------------------
    * 상태
    * ------------------------------------------------------------------ */
-  const state = { idx: 0, active: null, withLodge: false };
+  const state = { idx: 0, active: null, withLodge: false, openLegs: new Set() };
   try { state.withLodge = localStorage.getItem('nyc-trip-withLodge') === '1'; } catch (e) { /* 무시 */ }
 
   const tabsEl = $('#tabs');
@@ -870,15 +1420,17 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     let total = 0;
     for (let j = 1; j < day.stops.length; j++) total += km(day.stops[j - 1], day.stops[j]);
 
+    const legs = buildLegs(day);
     const rowHtml = rows.map((r, j) => {
       const next = rows[j + 1];
       const dash = !!next && (r.kind === 'lodge' || next.kind === 'lodge');
-      const leg = next ? `<div class="leg">${dash ? '숙소 이동 · ' : ''}직선 ${fmtDist(km(r, next))}</div>` : '';
+      const leg = next ? `<div class="leg${state.openLegs.has(j) ? ' is-open' : ''}" id="leg-${j}">${legHtml(legs[j])}</div>` : '';
       if (r.kind === 'lodge') {
+        const backNote = r.role === 'to' && day.back ? `<span class="row-memo">${day.back} 출발 기준으로 경로 계산</span>` : '';
         return `<li class="row row-lodge${dash ? ' dash' : ''}" data-key="${r.key}">
           <button type="button" class="row-btn" data-key="${r.key}">
             <span class="num is-lodge">${HOUSE}</span>
-            <span class="row-body"><span class="row-time">숙소</span><span class="row-name">${esc(r.label)}</span></span>
+            <span class="row-body"><span class="row-time">숙소</span><span class="row-name">${esc(r.label)}</span>${backNote}</span>
           </button>${leg}</li>`;
       }
       return `<li class="row${dash ? ' dash' : ''}" data-key="${r.key}">
@@ -903,13 +1455,29 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
           <span>직선 동선 ${fmtDist(total)}</span>
           <span>베이스 ${esc(day.base)}</span>
         </p>
+        <div class="day-lines" id="dayLines" hidden></div>
       </header>
       <ol class="stops">${rowHtml}</ol>
-      <p class="panel-foot">장소를 누르면 지도에서 확대됩니다. 선은 실제 이동 경로가 아니라 장소 사이를 이은 직선이고, 점선은 숙소와 오가는 구간입니다.</p>`;
+      <p class="panel-foot">장소를 누르면 지도에서 확대되고, 장소 사이의 이동 칸을 누르면 지하철 타는 법이 펼쳐집니다.
+        지도 선은 실제 경로(지하철은 노선 색, 도보는 점선)이고, 경로를 못 불러오면 직선으로 보여요.
+        시간은 일정의 도착 시각 기준으로 계산한 참고용이며 실시간 시간표는 아닙니다.</p>
+      <details class="tips">
+        <summary>뉴욕 지하철 타는 법</summary>
+        <ul>
+          <li>개찰구에서 컨택리스 카드나 휴대폰(애플페이 등)을 태그하면 됩니다(OMNY). 요금은 각 구간의 ‘요금’을 참고하세요.</li>
+          <li>같은 카드·휴대폰으로 계속 태그하세요. 2시간 안 지하철↔버스 환승이 무료이고, 7일 안에 12번 결제하면 그 뒤는 무료(요금 상한)입니다.</li>
+          <li>입구가 Uptown(북쪽)·Downtown(남쪽) 방면으로 나뉜 역이 많아요. 들어가기 전에 입구 위 표지를 확인하세요.</li>
+          <li>같은 승강장에 급행(Express)과 완행(Local)이 함께 서요. 열차의 노선 기호와 ‘○○ 방면’을 꼭 확인하세요.</li>
+          <li>심야(0~6시경)엔 배차가 약 20분으로 길어지고, 주말·심야엔 공사로 노선이 바뀌는 일이 잦아요. 역 안내문이나 MTA 앱을 확인하세요.</li>
+        </ul>
+      </details>`;
     panel.scrollTop = 0;
+    updateDayLines(day);
   }
 
   panel.addEventListener('click', e => {
+    const ls = e.target.closest('.leg-sum');
+    if (ls) { toggleLeg(Number(ls.dataset.leg)); return; }
     const b = e.target.closest('.row-btn');
     if (b) select(b.dataset.key);
   });
@@ -929,6 +1497,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
   function selectDay(i, { hash = true, focusTab = false } = {}) {
     state.idx = i;
     state.active = null;
+    state.openLegs = new Set();
     const day = DAYS[i];
     tabsEl.querySelectorAll('.tab').forEach(t => {
       const on = Number(t.dataset.i) === i;
@@ -939,6 +1508,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     centerTab(i);
     renderPanel(day, i);
     if (view) { view.render(day); view.fit(); }
+    loadRoutes(day);
     if (hash) history.replaceState(null, '', `#d${i + 1}`);
     document.title = `${day.m}/${day.d} ${day.title} · 뉴욕 동선`;
   }
@@ -1005,7 +1575,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
   }
 
   const GMap = {
-    map: null, iw: null, AME: null, core: null, Polyline: null, day: null, lines: [], marks: new Map(), lastMarkerClick: 0,
+    map: null, iw: null, AME: null, core: null, Polyline: null, day: null, legOv: new Map(), marks: new Map(), lastMarkerClick: 0,
 
     async init(el) {
       const [core, maps, marker] = await Promise.all([
@@ -1039,14 +1609,15 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
 
     clear() {
       if (this.iw) this.iw.close();
-      this.lines.forEach(l => l.setMap(null));
-      this.lines = [];
+      this.legOv.forEach(list => list.forEach(o => this.drop(o)));
+      this.legOv.clear();
       this.marks.forEach(r => { r.m.map = null; });
       this.marks.clear();
     },
 
-    line(opts) {
-      this.lines.push(new this.Polyline({ clickable: false, map: this.map, ...opts }));
+    drop(o) {
+      if (this.AME && o instanceof this.AME) o.map = null;
+      else o.setMap(null);
     },
 
     mark(key, p, el, z, title) {
@@ -1062,34 +1633,80 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     render(day) {
       this.clear();
       this.day = day;
-      const dark = isDark();
-      const c = day.color[dark ? 1 : 0];
-      const casing = dark ? '#0c1420' : '#ffffff';
-      const ll = p => ({ lat: p.lat, lng: p.lng });
       const S = day.stops;
-
-      // 숙소 ↔ 동선: 점선
-      const dash = (a, b) => this.line({
-        path: [ll(a), ll(b)], strokeOpacity: 0, zIndex: 1,
-        icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .85, strokeColor: dark ? '#a9bbd3' : '#1f3a5f', strokeWeight: 2.5, scale: 3 }, offset: '0', repeat: '11px' }],
-      });
-      if (day.from) dash(LODGES[day.from.id], S[0]);
-      if (day.to) dash(S[S.length - 1], LODGES[day.to.id]);
-
-      // 방문지끼리: 테두리 + 색 선 + 방향 화살표
-      for (let i = 0; i < S.length - 1; i++) {
-        const path = [ll(S[i]), ll(S[i + 1])];
-        this.line({ path, strokeColor: casing, strokeOpacity: .95, strokeWeight: 8, zIndex: 2 });
-        this.line({
-          path, strokeColor: c, strokeOpacity: 1, strokeWeight: 4, zIndex: 3,
-          icons: [{ icon: { path: this.core.SymbolPath.FORWARD_CLOSED_ARROW, scale: 2.6, strokeColor: c, strokeWeight: 1, fillColor: c, fillOpacity: 1 }, offset: '55%' }],
-        });
-      }
+      buildLegs(day).forEach(leg => this.drawLeg(leg, Routes.peek(leg)));
 
       dayLodges(day).forEach(l => this.mark('l-' + l.id, l, lodgePin(l.tag), 50, `${l.name} (숙소)`));
       S.forEach((s, i) => {
         const el = s.home ? lodgePin(null, i + 1, day.color[0]) : stopPin(i + 1, day.color[0]);
         this.mark('s' + i, s, el, 100 + i, `${i + 1}. ${s.name}`);
+      });
+    },
+
+    // 이동 구간: 실제 경로가 있으면 지하철은 노선 색 실선, 도보는 점선. 없으면 직선(숙소 구간은 점선).
+    drawLeg(leg, res) {
+      (this.legOv.get(leg.j) || []).forEach(o => this.drop(o));
+      const ov = [];
+      this.legOv.set(leg.j, ov);
+      const dark = isDark();
+      const c = this.day.color[dark ? 1 : 0];
+      const casing = dark ? '#0c1420' : '#ffffff';
+      const line = opts => ov.push(new this.Polyline({ clickable: false, map: this.map, ...opts }));
+      const dotted = (path, color, scale) => line({
+        path, strokeOpacity: 0, zIndex: 4,
+        icons: [{ icon: { path: this.core.SymbolPath.CIRCLE, fillColor: color, fillOpacity: 1, strokeOpacity: 0, scale }, offset: '0', repeat: `${Math.round(scale * 4)}px` }],
+      });
+      const A = { lat: leg.a.lat, lng: leg.a.lng }, B = { lat: leg.b.lat, lng: leg.b.lng };
+
+      if (!res || !res.ok) {
+        if (leg.lodge) {
+          line({ path: [A, B], strokeOpacity: 0, zIndex: 1,
+            icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .85, strokeColor: dark ? '#a9bbd3' : '#1f3a5f', strokeWeight: 2.5, scale: 3 }, offset: '0', repeat: '11px' }] });
+        } else {
+          line({ path: [A, B], strokeColor: casing, strokeOpacity: .95, strokeWeight: 8, zIndex: 2 });
+          line({ path: [A, B], strokeColor: c, strokeOpacity: 1, strokeWeight: 4, zIndex: 3,
+            icons: [{ icon: { path: this.core.SymbolPath.FORWARD_CLOSED_ARROW, scale: 2.6, strokeColor: c, strokeWeight: 1, fillColor: c, fillOpacity: 1 }, offset: '55%' }] });
+        }
+        return;
+      }
+
+      const op = leg.lodge ? .8 : 1;
+      const walkOnly = !res.segs.some(s => s.kind === 'transit');
+      res.segs.forEach(s => {
+        const path = s.path.map(([lat, lng]) => ({ lat, lng }));
+        if (path.length < 2) return;
+        if (s.kind === 'transit') {
+          line({ path, strokeColor: casing, strokeOpacity: .95 * op, strokeWeight: 9, zIndex: 5 });
+          line({ path, strokeColor: safeColor(s.color, c), strokeOpacity: op, strokeWeight: 5, zIndex: 6 });
+          this.station(ov, s.from, s, '승차');
+          this.station(ov, s.to, s, '하차');
+        } else if (s.kind === 'drive') {
+          line({ path, strokeColor: casing, strokeOpacity: .95, strokeWeight: 8, zIndex: 5 });
+          line({ path, strokeColor: c, strokeOpacity: 1, strokeWeight: 4.5, zIndex: 6 });
+        } else {
+          dotted(path, walkOnly ? c : (dark ? '#c3cedb' : '#4a5a70'), walkOnly ? 2.6 : 2);
+        }
+      });
+    },
+
+    // 승차·하차 역 표시
+    station(ov, st, s, verb) {
+      if (st.lat == null || st.lng == null) return;
+      const el = document.createElement('div');
+      el.className = 'st-dot';
+      el.style.setProperty('--lc', safeColor(s.color, '#5b697d'));
+      ov.push(new this.AME({ map: this.map, position: { lat: st.lat, lng: st.lng }, content: el, zIndex: 40, title: `${st.name} · ${lineLabel(s)} ${verb}` }));
+    },
+
+    focusLeg(leg) {
+      const res = Routes.peek(leg);
+      const b = new this.core.LatLngBounds();
+      b.extend({ lat: leg.a.lat, lng: leg.a.lng });
+      b.extend({ lat: leg.b.lat, lng: leg.b.lng });
+      if (res && res.ok) res.segs.forEach(s => s.path.forEach(([lat, lng]) => b.extend({ lat, lng })));
+      this.map.fitBounds(b, mqWide.matches ? { top: 80, right: 70, bottom: 50, left: 70 } : { top: 60, right: 30, bottom: 36, left: 30 });
+      this.core.event.addListenerOnce(this.map, 'idle', () => {
+        if (this.map.getZoom() > 16) this.map.setZoom(16);
       });
     },
 
@@ -1296,6 +1913,8 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       view = GMap;
       GMap.render(DAYS[state.idx]);
       GMap.fit();
+      refreshLegs(DAYS[state.idx]);
+      loadRoutes(DAYS[state.idx]);
     } catch (err) {
       console.warn(err);
       useSchematic('error');
