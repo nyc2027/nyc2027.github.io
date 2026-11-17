@@ -24,8 +24,17 @@ gh secret set GOOGLE_MAP_ID         # (선택) 직접 만든 Map ID. 없으면 D
 
 Google Cloud 콘솔에서 키 제한을 꼭 걸어 주세요.
 
-- API 제한: Maps JavaScript API
+- API 제한: **Maps JavaScript API**, **Routes API** (실제 도보·지하철 경로에 필요)
 - 웹사이트 제한: `https://<GitHub 사용자명>.github.io/*`
+
+## 실제 경로 (Routes API)
+
+장소 사이 이동은 Routes API로 계산합니다. 1.25km 이하는 도보, 그 외는 지하철(없으면 다른 대중교통)이고,
+장소 데이터에 `via`(이동 수단), `through`(경유 좌표), `alt`(대안 수단)를 넣어 바꿀 수 있습니다.
+숙소 복귀 시각은 각 날짜의 `back`, 공휴일 시간표는 `svcDate`로 정합니다.
+계산 결과는 브라우저에 7일간 저장돼 같은 날짜를 다시 열어도 API를 다시 부르지 않습니다.
+
+노선별 24시간 운행 여부(첫차·막차)는 `index.html`의 `SUBWAY_24H`, `SUBWAY_PART` 표를 따릅니다.
 
 ## 배포
 
