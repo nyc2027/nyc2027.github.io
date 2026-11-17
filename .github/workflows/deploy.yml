@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # 저장소에는 'YOUR_API_KEY' 그대로 두고, 배포본에만 시크릿 값을 넣는다.
       - name: Build (API 키 주입)
@@ -50,9 +50,9 @@ jobs:
             sed -i "s|^const GOOGLE_MAP_ID = 'DEMO_MAP_ID';|const GOOGLE_MAP_ID = '${GOOGLE_MAP_ID}';|" _site/index.html
           fi
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -64,4 +64,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
