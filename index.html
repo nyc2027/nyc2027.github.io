@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1f3a5f" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#13243b" media="(prefers-color-scheme: dark)">
+<title>뉴욕 겨울 동선</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+  :root {
+    --navy: #1f3a5f;
+    --red: #c0392b;
+    --band: #1f3a5f;
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --surface-2: #e8edf3;
+    --ink: #13213a;
+    --muted: #5b697d;
+    --line: #d8dfe8;
+    --lodge: #1f3a5f;
+    --accent-text: #c0392b;
+    --focus: #c0392b;
+    --shadow: 0 1px 2px rgba(15, 30, 55, .06), 0 6px 20px rgba(15, 30, 55, .09);
+    --f-head: "Space Grotesk", "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+    --f-body: "Inter", "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --band: #13243b;
+      --bg: #0c1420;
+      --surface: #152234;
+      --surface-2: #1b2b40;
+      --ink: #e6ecf4;
+      --muted: #95a5ba;
+      --line: #27394f;
+      --lodge: #2d5283;
+      --accent-text: #ff8576;
+      --focus: #ff8576;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+    }
+  }
+
+  /* 날짜별 색: --c(채움, 고정) / --c-light(다크모드용 밝은 톤) → --ct(글자·선) */
+  .daycolor { --ct: var(--c); }
+  @media (prefers-color-scheme: dark) { .daycolor { --ct: var(--c-light); } }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 15px/1.5 var(--f-body);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  button { font: inherit; color: inherit; }
+
+  /* ---------- 레이아웃: 모바일 우선 (헤더 / 탭 / 지도 / 리스트) ---------- */
+  .app {
+    height: 100vh;
+    height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto clamp(220px, 42dvh, 540px) minmax(0, 1fr);
+    grid-template-areas: "head" "tabs" "map" "panel";
+  }
+
+  /* ---------- 헤더 ---------- */
+  .masthead {
+    grid-area: head;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: calc(env(safe-area-inset-top) + 14px) 16px 8px;
+    background: var(--band);
+    color: #fff;
+  }
+  .masthead::before { /* 눈 내리는 밤 느낌의 점 패턴 */
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(rgba(255, 255, 255, .18) 1px, transparent 1.6px),
+      radial-gradient(rgba(255, 255, 255, .09) 1px, transparent 1.6px);
+    background-size: 22px 22px, 13px 13px;
+    background-position: 0 0, 7px 9px;
+    -webkit-mask-image: linear-gradient(100deg, transparent 35%, #000 95%);
+    mask-image: linear-gradient(100deg, transparent 35%, #000 95%);
+  }
+  .masthead > * { position: relative; }
+  .eyebrow {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font: 600 10.5px/1 var(--f-head);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .7);
+  }
+  .eyebrow i { width: 7px; height: 7px; border-radius: 1px; background: var(--red); }
+  .masthead h1 {
+    margin: 6px 0 0;
+    font: 700 26px/1 var(--f-head);
+    letter-spacing: -.025em;
+  }
+  .range {
+    margin: 0;
+    text-align: right;
+    font: 500 11.5px/1.5 var(--f-head);
+    letter-spacing: .02em;
+    color: rgba(255, 255, 255, .62);
+    font-variant-numeric: tabular-nums;
+  }
+  .range b { color: #fff; font-weight: 600; }
+
+  /* ---------- 날짜 탭 (가로 스크롤) ---------- */
+  .tabs {
+    grid-area: tabs;
+    position: relative;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 6px 16px 14px;
+    background: var(--band);
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1 0 46px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 4px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .05);
+    color: rgba(255, 255, 255, .86);
+    cursor: pointer;
+    transition: background .2s, color .2s, box-shadow .2s;
+  }
+  .tab:hover { background: rgba(255, 255, 255, .11); }
+  .tab-dow { font-size: 11px; font-weight: 500; line-height: 1; opacity: .7; }
+  .tab-date {
+    font: 600 19px/1 var(--f-head);
+    letter-spacing: -.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .tab-bar {
+    width: 14px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--c-light);
+    transition: width .2s;
+  }
+  .tab[aria-selected="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    border-color: transparent;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .22);
+  }
+  .tab[aria-selected="true"] .tab-bar { width: 24px; background: var(--c); }
+  @media (prefers-color-scheme: dark) {
+    .tab[aria-selected="true"] { background: #e6ecf4; color: #13213a; }
+  }
+  .tab:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .tab-today {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff6b5b;
+  }
+  .tab-sep {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 1px;
+    border-left: 1px dashed rgba(255, 255, 255, .22);
+    font: 600 9px/1 var(--f-head);
+    letter-spacing: .14em;
+    color: rgba(255, 255, 255, .45);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  /* ---------- 지도 ---------- */
+  .mapwrap {
+    grid-area: map;
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .mapcanvas { position: absolute; inset: 0; }
+  .map-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .map-ctl {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 5;
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .map-ctl button {
+    border: 0;
+    background: none;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font: 600 12.5px/1 var(--f-body);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .map-ctl button:hover { color: var(--ink); }
+  .map-ctl button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+  @media (prefers-color-scheme: dark) {
+    .map-ctl button[aria-pressed="true"] { background: #e6ecf4; color: #13213a; }
+  }
+  .map-note {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 28px;
+    z-index: 5;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 8px 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: var(--shadow);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .map-note p { margin: 0; flex: 1; word-break: keep-all; }
+  .map-note b { color: var(--ink); }
+  .map-note code {
+    font: 500 11.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  .note-x {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .note-x:hover { background: var(--surface-2); }
+
+  /* 지도 마커 (Google AdvancedMarker 콘텐츠) */
+  .mk {
+    position: relative;
+    width: max-content;
+    padding-bottom: 7px;
+    cursor: pointer;
+    transform-origin: 50% 100%;
+    transition: transform .2s cubic-bezier(.3, 1.5, .6, 1);
+    filter: drop-shadow(0 2px 3px rgba(8, 20, 40, .38));
+  }
+  .mk.is-active { transform: scale(1.22); }
+  .mk-pin {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--c);
+    color: #fff;
+    font: 700 14px/1 var(--f-head);
+  }
+  .mk-pin::after { /* 아래쪽 꼭지 */
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 1px);
+    margin-left: -6px;
+    border: solid transparent;
+    border-width: 8px 6px 0;
+    border-top-color: #fff;
+  }
+  .mk-lodge .mk-pin { width: 32px; height: 32px; border-radius: 10px; background: var(--lodge); }
+  .mk-lodge .mk-pin svg { width: 17px; height: 17px; }
+  .mk-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    background: var(--b);
+    color: #fff;
+    font: 700 11px/15px var(--f-head);
+    text-align: center;
+  }
+  .mk-tag {
+    position: absolute;
+    left: calc(100% + 5px);
+    top: 7px;
+    white-space: nowrap;
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: #fff;
+    color: #1f3a5f;
+    font: 600 11px/1 var(--f-body);
+  }
+
+  /* InfoWindow */
+  .gm-style .gm-style-iw-c {
+    background: var(--surface) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25) !important;
+  }
+  .gm-style .gm-style-iw-tc::after { background: var(--surface) !important; }
+  .gm-style .gm-style-iw-d { color: var(--ink); }
+  .gm-style .gm-ui-hover-effect > span { background-color: var(--muted) !important; }
+  .iw-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 4px;
+    font: 700 15px/1.3 var(--f-head);
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .iw-num {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--c);
+    color: #fff;
+    font: 700 12px/1 var(--f-head);
+  }
+  .iw-num.is-lodge { border-radius: 7px; background: var(--lodge); }
+  .iw-num svg { width: 13px; height: 13px; }
+  .iw { max-width: 250px; padding: 0 2px 6px; font: 13.5px/1.5 var(--f-body); color: var(--ink); }
+  .iw p { margin: 0; }
+  .iw-time { font: 600 13px/1.4 var(--f-head); color: var(--ct); letter-spacing: .02em; }
+  .iw-memo { margin-top: 2px !important; color: var(--muted); word-break: keep-all; }
+  .iw-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .iw-links a {
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink);
+    font: 600 12px/1 var(--f-body);
+    text-decoration: none;
+  }
+  .iw-links a:hover { background: var(--line); }
+
+  /* 간이 지도(키 없을 때) */
+  #schematic svg { display: block; width: 100%; height: 100%; }
+  .sc-bg { fill: var(--surface-2); }
+  .sc-dot { fill: var(--line); }
+  .sc-casing { fill: none; stroke: var(--surface); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+  .sc-route { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .sc-dash { fill: none; stroke: var(--muted); stroke-width: 2; stroke-dasharray: 5 6; opacity: .75; }
+  .sc-mk { cursor: pointer; }
+  .sc-in { transform-box: fill-box; transform-origin: center; transition: transform .2s cubic-bezier(.3, 1.5, .6, 1); }
+  .sc-mk.is-active .sc-in { transform: scale(1.25); }
+  .sc-mk.is-off { opacity: .7; }
+  .sc-pin { stroke: #fff; stroke-width: 2.5; }
+  .sc-lodge-box { fill: var(--lodge); stroke: #fff; stroke-width: 2.5; }
+  .sc-num { fill: #fff; font: 700 13px var(--f-head); text-anchor: middle; }
+  .sc-badge-num { fill: #fff; font: 700 10px var(--f-head); text-anchor: middle; }
+  .sc-label {
+    font: 600 11.5px var(--f-body);
+    fill: var(--ink);
+    paint-order: stroke;
+    stroke: var(--surface-2);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+  .sc-mk.is-active .sc-label { font-weight: 700; }
+  .sc-scale path { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+  .sc-scale text { fill: var(--muted); font: 500 10.5px var(--f-head); text-anchor: middle; }
+
+  /* ---------- 리스트 패널 ---------- */
+  .panel {
+    grid-area: panel;
+    position: relative;
+    z-index: 2;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin-top: -16px;
+    padding: 22px 16px calc(28px + env(safe-area-inset-bottom));
+    border-radius: 18px 18px 0 0;
+    background: var(--bg);
+    box-shadow: 0 -8px 24px rgba(10, 25, 45, .14);
+    outline: none;
+  }
+  .day-kicker {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font: 600 12px/1 var(--f-head);
+    letter-spacing: .04em;
+    color: var(--muted);
+  }
+  .day-kicker b {
+    padding: 4px 7px;
+    border-radius: 6px;
+    background: var(--c);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .day-head h2 {
+    margin: 10px 0 0;
+    font: 700 23px/1.25 var(--f-head);
+    letter-spacing: -.015em;
+    word-break: keep-all;
+  }
+  .badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 4px 8px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    color: var(--accent-text);
+    font: 600 11px/1 var(--f-body);
+    font-style: normal;
+    vertical-align: 4px;
+  }
+  .day-stats {
+    margin: 8px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .day-stats span + span::before { content: "·"; margin: 0 8px; opacity: .6; }
+
+  .stops { list-style: none; margin: 16px 0 0; padding: 0; }
+  .row { position: relative; }
+  .row::before { /* 타임라인 레일 */
+    content: "";
+    position: absolute;
+    left: 24px;
+    top: 44px;
+    bottom: -10px;
+    width: 2px;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--ct) 40%, transparent);
+  }
+  .row.dash::before {
+    background: repeating-linear-gradient(to bottom,
+      color-mix(in srgb, var(--muted) 60%, transparent) 0 4px, transparent 4px 8px);
+  }
+  .row:last-child::before { display: none; }
+  .row-btn {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: 12px;
+    width: 100%;
+    padding: 10px 12px 10px 8px;
+    border: 0;
+    border-radius: 14px;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background .15s, box-shadow .15s;
+  }
+  .row-btn:hover { background: var(--surface-2); }
+  .row-btn:focus-visible, .map-ctl button:focus-visible, .note-x:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .row.is-active .row-btn { background: var(--surface); box-shadow: var(--shadow); }
+  .num {
+    position: relative;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--c);
+    color: #fff;
+    font: 700 14px/1 var(--f-head);
+    box-shadow: 0 0 0 4px var(--bg);
+  }
+  .num.is-lodge { border-radius: 10px; background: var(--lodge); }
+  .num svg { width: 16px; height: 16px; }
+  .row.is-active .num { box-shadow: 0 0 0 4px var(--surface); }
+  .row-body { min-width: 0; padding-top: 1px; }
+  .row-time {
+    display: block;
+    font: 600 12.5px/1.2 var(--f-head);
+    letter-spacing: .03em;
+    color: var(--ct);
+    font-variant-numeric: tabular-nums;
+  }
+  .row-name {
+    display: block;
+    margin-top: 3px;
+    font-size: 15.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .row-memo {
+    display: block;
+    margin-top: 2px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: var(--muted);
+    word-break: keep-all;
+  }
+  .row-lodge .row-time { color: var(--muted); }
+  .row-lodge .row-name { font-size: 14px; font-weight: 500; color: var(--muted); }
+  .leg {
+    padding: 0 0 6px 52px;
+    font: 500 11.5px/1.2 var(--f-head);
+    letter-spacing: .01em;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .panel-foot {
+    margin: 18px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--muted);
+    word-break: keep-all;
+  }
+
+  /* ---------- 데스크톱: 왼쪽 사이드바 + 오른쪽 지도 ---------- */
+  @media (min-width: 960px) {
+    .app {
+      grid-template-columns: 424px minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr);
+      grid-template-areas: "head map" "tabs map" "panel map";
+    }
+    .masthead { padding: 30px 24px 12px; }
+    .masthead h1 { font-size: 36px; }
+    .tabs { padding: 10px 24px 20px; }
+    .tab { flex-basis: 42px; }
+    .panel {
+      margin-top: 0;
+      padding: 24px 24px 32px;
+      border-radius: 0;
+      border-right: 1px solid var(--line);
+      box-shadow: none;
+    }
+    .map-ctl { top: 16px; left: 16px; }
+    .map-note { left: 16px; right: auto; bottom: 20px; max-width: 420px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow"><i></i>Winter Solo Trip</p>
+      <h1>New York</h1>
+    </div>
+    <p class="range"><b>2026.12.27</b><br>→ 2027.01.02</p>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="여행 날짜"></nav>
+
+  <main class="mapwrap">
+    <div class="map-loading" id="mapLoading">지도를 불러오는 중…</div>
+    <div class="mapcanvas" id="gmap"></div>
+    <div class="mapcanvas" id="schematic" hidden></div>
+    <div class="map-ctl" role="group" aria-label="지도 범위">
+      <button type="button" id="fitRoute" aria-pressed="true">동선</button>
+      <button type="button" id="fitAll" aria-pressed="false">숙소 포함</button>
+    </div>
+    <div class="map-note" id="mapNote" role="status" hidden>
+      <p id="mapNoteText"></p>
+      <button type="button" class="note-x" id="mapNoteClose" aria-label="안내 닫기">×</button>
+    </div>
+  </main>
+
+  <section class="panel daycolor" id="panel" role="tabpanel" tabindex="-1"></section>
+</div>
+
+<noscript><p style="padding:16px">이 페이지는 JavaScript가 필요합니다.</p></noscript>
+
+<script>
+/* =====================================================================
+ * ▼▼▼ Google Maps API 키를 여기에 넣으세요 ▼▼▼
+ *   예) const GOOGLE_MAPS_API_KEY = 'AIzaSy...';
+ *   키가 비어 있거나 인증에 실패하면 '간이 지도'로 미리보기가 표시됩니다.
+ * ===================================================================== */
+const GOOGLE_MAPS_API_KEY = 'YOUR_API_KEY';
+
+/* 숫자 마커(AdvancedMarker)용 Map ID.
+ * 'DEMO_MAP_ID'는 Google이 제공하는 테스트용 ID라 그대로 둬도 동작합니다.
+ * Google Cloud 콘솔에서 직접 만든 Map ID가 있으면 바꿔 넣으세요. */
+const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
+
+(() => {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+   * 데이터
+   * ------------------------------------------------------------------ */
+  const LODGES = {
+    woodside: { name: '우드사이드 숙소', short: '우드사이드', lat: 40.7454, lng: -73.9030,
+      stay: '12/27 ~ 12/29 숙박 · 12/30 체크아웃' },
+    lic: { name: '비스타 LIC', short: '비스타 LIC', lat: 40.7490, lng: -73.9400,
+      stay: '12/30 체크인 ~ 1/2 06:00 출발' },
+  };
+
+  // color: [기본 색(마커·라이트모드 선), 다크모드용 밝은 색]
+  const DAYS = [
+    {
+      y: 2026, m: 12, d: 27, dow: '일', title: '도착 & 미술관', base: '우드사이드',
+      color: ['#c0392b', '#ef7064'],
+      from: null,
+      to: { id: 'woodside', label: '우드사이드 숙소 체크인', tag: '체크인' },
+      stops: [
+        { t: '12:30', name: '브라이언트파크 · 뉴욕공립도서관', memo: '연말 트리 · 마켓', short: '브라이언트파크', lat: 40.7536, lng: -73.9832 },
+        { t: '14:00', name: 'MoMA 한국어 도슨트', memo: '현대미술, ~16:30', short: 'MoMA', lat: 40.7614, lng: -73.9776 },
+        { t: '19:00', name: '닉스 경기 @ MSG', memo: '농구 직관', short: 'MSG', lat: 40.7505, lng: -73.9934 },
+      ],
+    },
+    {
+      y: 2026, m: 12, d: 28, dow: '월', title: '미술관 & 뮤지컬', badge: '피크데이', base: '우드사이드',
+      color: ['#2563a8', '#70a8ea'],
+      from: { id: 'woodside', label: '우드사이드에서 출발' },
+      to: { id: 'woodside', label: '우드사이드로 복귀' },
+      stops: [
+        { t: '10:30', name: '메트 한국어 도슨트', memo: '~13:00', short: '메트', lat: 40.7794, lng: -73.9632 },
+        { t: '15:00', name: '센트럴파크', memo: '베데스다 테라스 · 보우 브릿지', short: '센트럴파크', lat: 40.7736, lng: -73.9712 },
+        { t: '19:00', name: '위키드 @ 거슈윈 시어터', memo: '~21:45', short: '거슈윈 시어터', lat: 40.7593, lng: -73.9845 },
+      ],
+    },
+    {
+      y: 2026, m: 12, d: 29, dow: '화', title: '다운타운 & 빌리지 밤', base: '우드사이드',
+      color: ['#0f7d68', '#45c7a6'],
+      from: { id: 'woodside', label: '우드사이드에서 출발' },
+      to: { id: 'woodside', label: '우드사이드로 복귀' },
+      stops: [
+        { t: '11:00', name: '스태튼아일랜드 페리', memo: '자유의여신상 조망, 무료', short: '페리', lat: 40.7013, lng: -74.0133 },
+        { t: '12:30', name: '월가 황소', memo: '차징불 · 월스트리트', short: '월가 황소', lat: 40.7056, lng: -74.0134 },
+        { t: '14:00', name: '덤보', memo: '브루클린 브릿지 건너 워싱턴 St 포토스팟', short: '덤보', lat: 40.7033, lng: -73.9903 },
+        { t: '16:00', name: "카츠 델리 or L'industrie 피자", memo: '리틀이탈리아 지점', short: "카츠 / L'industrie", lat: 40.7223, lng: -73.9874 },
+        { t: '17:30', name: "McSorley's Old Ale House", memo: '1854년 역사적 펍', short: "McSorley's", lat: 40.7287, lng: -73.9896 },
+        { t: '20:00', name: '재즈바', memo: '웨스트빌리지, 뱅가드 or 스몰스', short: '재즈바', lat: 40.7357, lng: -74.0014 },
+      ],
+    },
+    {
+      y: 2026, m: 12, d: 30, dow: '수', title: '이사 & 전망대', base: '비스타 LIC (체크인)',
+      color: ['#c2560c', '#f5934f'],
+      from: { id: 'woodside', label: '우드사이드 체크아웃', tag: '체크아웃' },
+      to: { id: 'lic', label: '비스타 LIC 체크인', tag: '체크인' },
+      stops: [
+        { t: '10:00', name: '써밋 원 밴더빌트', memo: '오전 전망대, 42가', short: '써밋', lat: 40.7527, lng: -73.9787 },
+        { t: '12:30', name: '첼시마켓', memo: '로브스터롤', short: '첼시마켓', lat: 40.7425, lng: -74.0061 },
+        { t: '13:30', name: '리틀아일랜드', memo: '허드슨강 위 공원', short: '리틀아일랜드', lat: 40.7420, lng: -74.0103 },
+        { t: '14:00', name: '하이라인 · Vessel', memo: '고가 산책 · 벌집 조형물', short: '하이라인 · Vessel', lat: 40.7536, lng: -74.0019 },
+        { t: '18:00', name: '웨스트빌리지 스테이크', memo: '부쉐리 등', short: '스테이크', lat: 40.7336, lng: -74.0027 },
+      ],
+    },
+    {
+      y: 2026, m: 12, d: 31, dow: '목', title: '볼드랍', base: '비스타 LIC',
+      color: ['#9a6d00', '#ebbd3e'],
+      from: { id: 'lic', label: '비스타 LIC에서 출발' },
+      to: { id: 'lic', label: '비스타 LIC로 복귀' },
+      stops: [
+        { t: '09:20', name: 'BCD 순두부', memo: 'K타운, 든든하게', short: 'BCD 순두부', lat: 40.7475, lng: -73.9860 },
+        { t: '10:00', name: '타임스스퀘어 볼드랍', memo: '10시 진입 ~ 자정', short: '타임스스퀘어', lat: 40.7580, lng: -73.9855 },
+      ],
+    },
+    {
+      y: 2027, m: 1, d: 1, dow: '금', title: '회복 & 마무리', base: '비스타 LIC',
+      color: ['#7d3c98', '#c18ee0'],
+      from: { id: 'lic', label: '비스타 LIC에서 출발' },
+      to: { id: 'lic', label: '비스타 LIC로 복귀' },
+      stops: [
+        { t: '11:00', name: 'LIC 브런치', memo: 'Court Square Diner', short: 'Court Sq Diner', lat: 40.7461, lng: -73.9458 },
+        { t: '12:30', name: "소호 쇼핑 · Trader Joe's", memo: '', short: '소호', lat: 40.7230, lng: -74.0000 },
+        { t: '15:30', name: '탑오브더록', memo: '노을 ~ 야경', short: '탑오브더록', lat: 40.7593, lng: -73.9794 },
+      ],
+    },
+    {
+      y: 2027, m: 1, d: 2, dow: '토', title: '출국', base: '비스타 LIC',
+      color: ['#4b6584', '#a3b9d2'],
+      from: null,
+      to: null,
+      stops: [
+        { t: '06:00', name: '비스타 LIC 출발', memo: '우버 추천', short: '비스타 LIC', home: 'lic', lat: 40.7490, lng: -73.9400 },
+        { t: '07:15', name: 'JFK 공항', memo: '', short: 'JFK', lat: 40.6413, lng: -73.7781 },
+      ],
+    },
+  ];
+
+  /* ------------------------------------------------------------------
+   * 유틸
+   * ------------------------------------------------------------------ */
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const mqDark = matchMedia('(prefers-color-scheme: dark)');
+  const mqWide = matchMedia('(min-width: 960px)');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const behavior = reduceMotion ? 'auto' : 'smooth';
+  const isDark = () => mqDark.matches;
+
+  const HOUSE_PATH = 'M12 3 2 11.4l1.3 1.5L5 11.4V20a1 1 0 0 0 1 1h4.5v-6h3v6H18a1 1 0 0 0 1-1v-8.6l1.7 1.5L22 11.4z';
+  const HOUSE = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="${HOUSE_PATH}"/></svg>`;
+  const FULL_DOW = { 일: '일요일', 월: '월요일', 화: '화요일', 수: '수요일', 목: '목요일', 금: '금요일', 토: '토요일' };
+
+  function km(a, b) {
+    const R = 6371, rad = Math.PI / 180;
+    const dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  const fmtDist = k => (k < 1 ? `${Math.round(k * 100) * 10} m` : `${k.toFixed(1)} km`);
+  const colorVars = day => `--c:${day.color[0]};--c-light:${day.color[1]}`;
+
+  // 리스트에 표시할 행: (출발 숙소) → 방문지들 → (복귀 숙소)
+  function buildRows(day) {
+    const lodgeRow = (ref) => {
+      const L = LODGES[ref.id];
+      return { key: 'l-' + ref.id, kind: 'lodge', id: ref.id, label: ref.label, short: L.short, lat: L.lat, lng: L.lng };
+    };
+    const rows = [];
+    if (day.from) rows.push(lodgeRow(day.from));
+    day.stops.forEach((s, i) => rows.push({ key: 's' + i, kind: 'stop', n: i + 1, ...s }));
+    if (day.to) rows.push(lodgeRow(day.to));
+    return rows;
+  }
+
+  // 그날 지도에 찍을 숙소 마커 (출발·복귀 숙소가 같으면 하나)
+  function dayLodges(day) {
+    const out = new Map();
+    if (day.from) out.set(day.from.id, day.from.tag || '숙소');
+    if (day.to && !out.has(day.to.id)) out.set(day.to.id, day.to.tag || '숙소');
+    if (day.from && day.to && day.from.id === day.to.id) out.set(day.from.id, '숙소');
+    return [...out].map(([id, tag]) => ({ id, tag, ...LODGES[id] }));
+  }
+
+  function infoFor(day, key) {
+    const rows = buildRows(day);
+    const idx = rows.findIndex(r => r.key === key);
+    if (idx < 0) return null;
+    const r = rows[idx];
+    if (r.kind === 'stop') {
+      return { kind: 'stop', n: r.n, home: !!r.home, name: r.name, time: r.t, memo: r.memo,
+        lat: r.lat, lng: r.lng, prev: idx > 0 ? rows[idx - 1] : null, day };
+    }
+    const L = LODGES[r.id];
+    return { kind: 'lodge', name: L.name, time: '숙소', memo: L.stay, lat: L.lat, lng: L.lng, prev: null, day };
+  }
+
+  const mapsUrl = p => `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+  const dirUrl = (a, b) => `https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lng}&destination=${b.lat},${b.lng}&travelmode=transit`;
+
+  /* ------------------------------------------------------------------
+   * 상태
+   * ------------------------------------------------------------------ */
+  const state = { idx: 0, active: null, withLodge: false };
+  try { state.withLodge = localStorage.getItem('nyc-trip-withLodge') === '1'; } catch (e) { /* 무시 */ }
+
+  const tabsEl = $('#tabs');
+  const panel = $('#panel');
+  let view = null; // GMap 또는 Schematic
+
+  /* ------------------------------------------------------------------
+   * 날짜 탭
+   * ------------------------------------------------------------------ */
+  function todayIdx() {
+    const n = new Date();
+    return DAYS.findIndex(d => d.y === n.getFullYear() && d.m === n.getMonth() + 1 && d.d === n.getDate());
+  }
+  function hashIdx() {
+    const m = /^#d([1-7])$/.exec(location.hash);
+    return m ? Number(m[1]) - 1 : -1;
+  }
+
+  function renderTabs() {
+    const today = todayIdx();
+    tabsEl.innerHTML = DAYS.map((d, i) => `
+      ${i > 0 && d.y !== DAYS[i - 1].y ? `<span class="tab-sep" aria-hidden="true">${d.y}</span>` : ''}
+      <button type="button" class="tab daycolor" role="tab" id="tab-${i}" data-i="${i}"
+        aria-controls="panel" aria-selected="false" tabindex="-1" style="${colorVars(d)}"
+        aria-label="${d.m}월 ${d.d}일 ${FULL_DOW[d.dow]} · ${esc(d.title)}${i === today ? ' (오늘)' : ''}">
+        <span class="tab-dow">${d.dow}</span>
+        <span class="tab-date">${d.d}</span>
+        <span class="tab-bar"></span>
+        ${i === today ? '<span class="tab-today"></span>' : ''}
+      </button>`).join('');
+  }
+
+  function centerTab(i) {
+    const t = $(`#tab-${i}`);
+    if (!t || tabsEl.scrollWidth <= tabsEl.clientWidth) return;
+    tabsEl.scrollTo({ left: t.offsetLeft - (tabsEl.clientWidth - t.offsetWidth) / 2, behavior });
+  }
+
+  tabsEl.addEventListener('click', e => {
+    const t = e.target.closest('.tab');
+    if (!t) return;
+    const i = Number(t.dataset.i);
+    if (i === state.idx) { select(null); view && view.fit(); } // 같은 탭 다시 누르면 전체 동선으로
+    else selectDay(i);
+  });
+  tabsEl.addEventListener('keydown', e => {
+    const n = DAYS.length;
+    const map = { ArrowRight: state.idx + 1, ArrowLeft: state.idx - 1, Home: 0, End: n - 1 };
+    if (!(e.key in map)) return;
+    e.preventDefault();
+    selectDay((map[e.key] + n) % n, { focusTab: true });
+  });
+
+  /* ------------------------------------------------------------------
+   * 리스트 패널
+   * ------------------------------------------------------------------ */
+  function renderPanel(day, i) {
+    const rows = buildRows(day);
+    let total = 0;
+    for (let j = 1; j < day.stops.length; j++) total += km(day.stops[j - 1], day.stops[j]);
+
+    const rowHtml = rows.map((r, j) => {
+      const next = rows[j + 1];
+      const dash = !!next && (r.kind === 'lodge' || next.kind === 'lodge');
+      const leg = next ? `<div class="leg">${dash ? '숙소 이동 · ' : ''}직선 ${fmtDist(km(r, next))}</div>` : '';
+      if (r.kind === 'lodge') {
+        return `<li class="row row-lodge${dash ? ' dash' : ''}" data-key="${r.key}">
+          <button type="button" class="row-btn" data-key="${r.key}">
+            <span class="num is-lodge">${HOUSE}</span>
+            <span class="row-body"><span class="row-time">숙소</span><span class="row-name">${esc(r.label)}</span></span>
+          </button>${leg}</li>`;
+      }
+      return `<li class="row${dash ? ' dash' : ''}" data-key="${r.key}">
+        <button type="button" class="row-btn" data-key="${r.key}">
+          <span class="num${r.home ? ' is-lodge' : ''}">${r.n}</span>
+          <span class="row-body">
+            <span class="row-time">${r.t}</span>
+            <span class="row-name">${esc(r.name)}</span>
+            ${r.memo ? `<span class="row-memo">${esc(r.memo)}</span>` : ''}
+          </span>
+        </button>${leg}</li>`;
+    }).join('');
+
+    panel.style.cssText = colorVars(day);
+    panel.setAttribute('aria-labelledby', `tab-${i}`);
+    panel.innerHTML = `
+      <header class="day-head">
+        <p class="day-kicker"><b>Day ${i + 1}</b><span>${day.m}월 ${day.d}일 ${FULL_DOW[day.dow]}</span></p>
+        <h2>${esc(day.title)}${day.badge ? `<em class="badge">${esc(day.badge)}</em>` : ''}</h2>
+        <p class="day-stats">
+          <span>방문 ${day.stops.length}곳</span>
+          <span>직선 동선 ${fmtDist(total)}</span>
+          <span>베이스 ${esc(day.base)}</span>
+        </p>
+      </header>
+      <ol class="stops">${rowHtml}</ol>
+      <p class="panel-foot">장소를 누르면 지도에서 확대됩니다. 선은 실제 이동 경로가 아니라 장소 사이를 이은 직선이고, 점선은 숙소와 오가는 구간입니다.</p>`;
+    panel.scrollTop = 0;
+  }
+
+  panel.addEventListener('click', e => {
+    const b = e.target.closest('.row-btn');
+    if (b) select(b.dataset.key);
+  });
+
+  function scrollRowIntoView(key) {
+    const row = panel.querySelector(`.row[data-key="${key}"]`);
+    if (!row) return;
+    const r = row.getBoundingClientRect(), p = panel.getBoundingClientRect();
+    if (r.top < p.top + 8 || r.bottom > p.bottom - 8) {
+      panel.scrollBy({ top: r.top - p.top - 16, behavior });
+    }
+  }
+
+  /* ------------------------------------------------------------------
+   * 선택 흐름
+   * ------------------------------------------------------------------ */
+  function selectDay(i, { hash = true, focusTab = false } = {}) {
+    state.idx = i;
+    state.active = null;
+    const day = DAYS[i];
+    tabsEl.querySelectorAll('.tab').forEach(t => {
+      const on = Number(t.dataset.i) === i;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focusTab) t.focus();
+    });
+    centerTab(i);
+    renderPanel(day, i);
+    if (view) { view.render(day); view.fit(); }
+    if (hash) history.replaceState(null, '', `#d${i + 1}`);
+    document.title = `${day.m}/${day.d} ${day.title} · 뉴욕 동선`;
+  }
+
+  function select(key, { fromMap = false } = {}) {
+    state.active = key;
+    panel.querySelectorAll('.row').forEach(r => r.classList.toggle('is-active', r.dataset.key === key));
+    if (key && fromMap) scrollRowIntoView(key);
+    if (!view) return;
+    view.highlight(key);
+    if (key) view.focus(key, { zoom: !fromMap });
+    else view.blur();
+  }
+
+  function setWithLodge(v) {
+    state.withLodge = v;
+    $('#fitRoute').setAttribute('aria-pressed', String(!v));
+    $('#fitAll').setAttribute('aria-pressed', String(v));
+    try { localStorage.setItem('nyc-trip-withLodge', v ? '1' : '0'); } catch (e) { /* 무시 */ }
+    if (view) view.fit();
+  }
+  $('#fitRoute').addEventListener('click', () => setWithLodge(false));
+  $('#fitAll').addEventListener('click', () => setWithLodge(true));
+
+  /* ------------------------------------------------------------------
+   * Google 지도
+   * ------------------------------------------------------------------ */
+  function stopPin(n, color) {
+    const el = document.createElement('div');
+    el.className = 'mk';
+    el.style.setProperty('--c', color);
+    el.innerHTML = `<div class="mk-pin">${n}</div>`;
+    return el;
+  }
+  function lodgePin(tag, n, badgeColor) {
+    const el = document.createElement('div');
+    el.className = 'mk mk-lodge';
+    if (badgeColor) el.style.setProperty('--b', badgeColor);
+    el.innerHTML = `<div class="mk-pin">${HOUSE}${n ? `<b class="mk-badge">${n}</b>` : ''}</div>${tag ? `<span class="mk-tag">${esc(tag)}</span>` : ''}`;
+    return el;
+  }
+
+  function iwHead(info) {
+    const el = document.createElement('div');
+    el.className = 'iw-head daycolor';
+    el.style.cssText = colorVars(info.day);
+    const icon = info.kind === 'lodge' || info.home
+      ? `<span class="iw-num is-lodge">${HOUSE}</span>`
+      : `<span class="iw-num">${info.n}</span>`;
+    el.innerHTML = `${icon}<span>${esc(info.name)}</span>`;
+    return el;
+  }
+  function iwBody(info) {
+    const el = document.createElement('div');
+    el.className = 'iw daycolor';
+    el.style.cssText = colorVars(info.day);
+    const links = [`<a href="${mapsUrl(info)}" target="_blank" rel="noopener">지도 앱에서 열기</a>`];
+    if (info.prev) links.push(`<a href="${dirUrl(info.prev, info)}" target="_blank" rel="noopener">${esc(info.prev.short)}에서 오는 길</a>`);
+    el.innerHTML = `
+      <p class="iw-time">${esc(info.time)}</p>
+      ${info.memo ? `<p class="iw-memo">${esc(info.memo)}</p>` : ''}
+      <div class="iw-links">${links.join('')}</div>`;
+    return el;
+  }
+
+  const GMap = {
+    map: null, iw: null, AME: null, core: null, Polyline: null, day: null, lines: [], marks: new Map(), lastMarkerClick: 0,
+
+    async init(el) {
+      const [core, maps, marker] = await Promise.all([
+        google.maps.importLibrary('core'),
+        google.maps.importLibrary('maps'),
+        google.maps.importLibrary('marker'),
+      ]);
+      this.core = core;
+      this.Polyline = maps.Polyline;
+      this.AME = marker.AdvancedMarkerElement;
+      const opts = {
+        mapId: GOOGLE_MAP_ID,
+        center: { lat: 40.742, lng: -73.97 },
+        zoom: 12,
+        disableDefaultUI: true,
+        zoomControl: true,
+        zoomControlOptions: { position: core.ControlPosition.RIGHT_TOP },
+        gestureHandling: 'greedy',
+        clickableIcons: false,
+      };
+      const CS = core.ColorScheme || google.maps.ColorScheme;
+      if (CS) opts.colorScheme = CS.FOLLOW_SYSTEM; // 시스템 다크모드 따라가기
+      this.map = new maps.Map(el, opts);
+      this.iw = new maps.InfoWindow({ maxWidth: 300 });
+      this.iw.addListener('closeclick', () => select(null));
+      this.map.addListener('click', () => {
+        if (Date.now() - this.lastMarkerClick < 400) return; // 마커 클릭이 지도 클릭으로 번지는 경우 무시
+        select(null);
+      });
+    },
+
+    clear() {
+      if (this.iw) this.iw.close();
+      this.lines.forEach(l => l.setMap(null));
+      this.lines = [];
+      this.marks.forEach(r => { r.m.map = null; });
+      this.marks.clear();
+    },
+
+    line(opts) {
+      this.lines.push(new this.Polyline({ clickable: false, map: this.map, ...opts }));
+    },
+
+    mark(key, p, el, z, title) {
+      const pos = { lat: p.lat, lng: p.lng };
+      const m = new this.AME({ map: this.map, position: pos, content: el, zIndex: z, title, gmpClickable: true });
+      m.addEventListener('gmp-click', () => {
+        this.lastMarkerClick = Date.now();
+        select(key, { fromMap: true });
+      });
+      this.marks.set(key, { m, el, z, pos });
+    },
+
+    render(day) {
+      this.clear();
+      this.day = day;
+      const dark = isDark();
+      const c = day.color[dark ? 1 : 0];
+      const casing = dark ? '#0c1420' : '#ffffff';
+      const ll = p => ({ lat: p.lat, lng: p.lng });
+      const S = day.stops;
+
+      // 숙소 ↔ 동선: 점선
+      const dash = (a, b) => this.line({
+        path: [ll(a), ll(b)], strokeOpacity: 0, zIndex: 1,
+        icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: .85, strokeColor: dark ? '#a9bbd3' : '#1f3a5f', strokeWeight: 2.5, scale: 3 }, offset: '0', repeat: '11px' }],
+      });
+      if (day.from) dash(LODGES[day.from.id], S[0]);
+      if (day.to) dash(S[S.length - 1], LODGES[day.to.id]);
+
+      // 방문지끼리: 테두리 + 색 선 + 방향 화살표
+      for (let i = 0; i < S.length - 1; i++) {
+        const path = [ll(S[i]), ll(S[i + 1])];
+        this.line({ path, strokeColor: casing, strokeOpacity: .95, strokeWeight: 8, zIndex: 2 });
+        this.line({
+          path, strokeColor: c, strokeOpacity: 1, strokeWeight: 4, zIndex: 3,
+          icons: [{ icon: { path: this.core.SymbolPath.FORWARD_CLOSED_ARROW, scale: 2.6, strokeColor: c, strokeWeight: 1, fillColor: c, fillOpacity: 1 }, offset: '55%' }],
+        });
+      }
+
+      dayLodges(day).forEach(l => this.mark('l-' + l.id, l, lodgePin(l.tag), 50, `${l.name} (숙소)`));
+      S.forEach((s, i) => {
+        const el = s.home ? lodgePin(null, i + 1, day.color[0]) : stopPin(i + 1, day.color[0]);
+        this.mark('s' + i, s, el, 100 + i, `${i + 1}. ${s.name}`);
+      });
+    },
+
+    fit() {
+      if (!this.day) return;
+      const b = new this.core.LatLngBounds();
+      this.day.stops.forEach(s => b.extend({ lat: s.lat, lng: s.lng }));
+      if (state.withLodge) dayLodges(this.day).forEach(l => b.extend({ lat: l.lat, lng: l.lng }));
+      const pad = mqWide.matches
+        ? { top: 90, right: 80, bottom: 60, left: 80 }
+        : { top: 64, right: 40, bottom: 40, left: 36 };
+      this.map.fitBounds(b, pad);
+      this.core.event.addListenerOnce(this.map, 'idle', () => {
+        if (this.map.getZoom() > 15) this.map.setZoom(15); // 장소가 가까운 날 과확대 방지
+      });
+    },
+
+    highlight(key) {
+      this.marks.forEach((r, k) => {
+        const on = k === key;
+        r.el.classList.toggle('is-active', on);
+        r.m.zIndex = on ? 999 : r.z;
+      });
+    },
+
+    focus(key, { zoom }) {
+      const r = this.marks.get(key);
+      const info = infoFor(this.day, key);
+      if (!r || !info) return;
+      this.iw.setOptions({ headerContent: iwHead(info), content: iwBody(info) });
+      if (zoom) {
+        if (this.map.getZoom() < 15) this.map.setZoom(16);
+        this.map.panTo(r.pos);
+      }
+      this.iw.open({ anchor: r.m, map: this.map, shouldFocus: false });
+    },
+
+    blur() { if (this.iw) this.iw.close(); },
+  };
+
+  function loadGoogleMaps() {
+    return new Promise((resolve, reject) => {
+      window.__nycTripMapReady = resolve;
+      const params = new URLSearchParams({
+        key: GOOGLE_MAPS_API_KEY,
+        v: 'weekly',
+        loading: 'async',
+        libraries: 'marker',
+        language: 'ko',
+        region: 'US',
+        callback: '__nycTripMapReady',
+      });
+      const s = document.createElement('script');
+      s.src = `https://maps.googleapis.com/maps/api/js?${params}`;
+      s.async = true;
+      s.onerror = () => reject(new Error('Google Maps 스크립트를 불러오지 못했습니다'));
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+   * 간이 지도 (API 키가 없거나 실패했을 때)
+   * ------------------------------------------------------------------ */
+  const Schematic = {
+    el: $('#schematic'),
+    day: null,
+
+    init() {
+      this.el.addEventListener('click', e => {
+        const g = e.target.closest('[data-key]');
+        select(g ? g.dataset.key : null, { fromMap: true });
+      });
+      if ('ResizeObserver' in window) {
+        new ResizeObserver(() => { if (view === this && this.day) this.fit(); }).observe(this.el);
+      }
+    },
+
+    render(day) {
+      this.day = day;
+      const W = this.el.clientWidth, H = this.el.clientHeight;
+      if (!W || !H) return;
+      const wide = mqWide.matches;
+      const note = $('#mapNote');
+      const noteH = note.hidden ? 0 : note.offsetHeight + (wide ? 12 : 20); // 안내 박스에 가리지 않게
+      const pad = { t: 70, r: 70, b: (wide ? 60 : 50) + noteH, l: 46 };
+      const lodges = dayLodges(day);
+      const fitPts = state.withLodge ? day.stops.concat(lodges) : day.stops;
+
+      const lat0 = fitPts.reduce((a, p) => a + p.lat, 0) / fitPts.length;
+      const kx = Math.cos(lat0 * Math.PI / 180);
+      const xs = fitPts.map(p => p.lng * kx), ys = fitPts.map(p => -p.lat);
+      const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+      const aw = Math.max(W - pad.l - pad.r, 40), ah = Math.max(H - pad.t - pad.b, 40);
+      const k = Math.min(aw / Math.max(maxX - minX, 0.006), ah / Math.max(maxY - minY, 0.006));
+      const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+      const P = p => [pad.l + aw / 2 + (p.lng * kx - cx) * k, pad.t + ah / 2 + (-p.lat - cy) * k];
+      // 화면 밖 숙소는 가장자리에 붙이고 방향 화살표 표시
+      const clamp = ([x, y]) => {
+        const nx = Math.min(Math.max(x, 22), W - 22), ny = Math.min(Math.max(y, 62), H - 30 - noteH);
+        const h = x > nx + .5 ? '→' : x < nx - .5 ? '←' : '';
+        const v = y < ny - .5 ? '↑' : y > ny + .5 ? '↓' : '';
+        const arrow = { '→↑': '↗', '→↓': '↘', '←↑': '↖', '←↓': '↙' }[h + v] || h || v;
+        return [nx, ny, arrow];
+      };
+      const f = n => n.toFixed(1);
+      const dark = isDark();
+      const lineC = day.color[dark ? 1 : 0];
+
+      const stopXY = day.stops.map(P);
+      const lodXY = new Map(lodges.map(l => [l.id, clamp(P(l))]));
+      const label = (x, text, extra = '') => {
+        const left = x > W - 130;
+        return `<text class="sc-label" x="${left ? -20 : 20}" dy=".35em"${left ? ' text-anchor="end"' : ''}>${esc(text)}${extra}</text>`;
+      };
+
+      let s = `<defs><pattern id="scdots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" class="sc-dot"/></pattern></defs>
+        <rect width="100%" height="100%" class="sc-bg"/><rect width="100%" height="100%" fill="url(#scdots)"/>`;
+
+      const dashed = (a, b) => `<path class="sc-dash" d="M${f(a[0])} ${f(a[1])}L${f(b[0])} ${f(b[1])}"/>`;
+      if (day.from) s += dashed(lodXY.get(day.from.id), stopXY[0]);
+      if (day.to) s += dashed(stopXY[stopXY.length - 1], lodXY.get(day.to.id));
+
+      const d = stopXY.map((p, i) => `${i ? 'L' : 'M'}${f(p[0])} ${f(p[1])}`).join('');
+      s += `<path class="sc-casing" d="${d}"/><path class="sc-route" stroke="${lineC}" d="${d}"/>`;
+      for (let i = 0; i < stopXY.length - 1; i++) {
+        const [x1, y1] = stopXY[i], [x2, y2] = stopXY[i + 1];
+        if (Math.hypot(x2 - x1, y2 - y1) < 44) continue;
+        const ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        s += `<path d="M-5 -4.5L5 0L-5 4.5z" fill="${lineC}" transform="translate(${f(x1 + (x2 - x1) * .55)} ${f(y1 + (y2 - y1) * .55)}) rotate(${f(ang)})"/>`;
+      }
+
+      lodges.forEach(l => {
+        const [x, y, off] = lodXY.get(l.id);
+        s += `<g class="sc-mk${off ? ' is-off' : ''}" data-key="l-${l.id}" transform="translate(${f(x)} ${f(y)})">
+          <g class="sc-in"><rect class="sc-lodge-box" x="-14" y="-14" width="28" height="28" rx="8"/>
+          <path fill="#fff" transform="translate(-8.5 -9) scale(.72)" d="${HOUSE_PATH}"/></g>
+          ${label(x, `${l.tag} · ${l.short}`, off ? ` ${off}` : '')}</g>`;
+      });
+
+      day.stops.forEach((st, i) => {
+        const [x, y] = stopXY[i];
+        const pin = st.home
+          ? `<rect class="sc-lodge-box" x="-14" y="-14" width="28" height="28" rx="8"/>
+             <path fill="#fff" transform="translate(-8.5 -9) scale(.72)" d="${HOUSE_PATH}"/>
+             <circle cx="13" cy="-13" r="8.5" fill="${day.color[0]}" class="sc-pin"/><text class="sc-badge-num" x="13" y="-13" dy=".35em">${i + 1}</text>`
+          : `<circle r="13" fill="${day.color[0]}" class="sc-pin"/><text class="sc-num" dy=".35em">${i + 1}</text>`;
+        s += `<g class="sc-mk" data-key="s${i}" transform="translate(${f(x)} ${f(y)})"><g class="sc-in">${pin}</g>${label(x, st.short)}</g>`;
+      });
+
+      // 축척 막대 (오른쪽 위)
+      const pxPerKm = k / 111.2;
+      const nice = [20, 10, 5, 2, 1, .5, .2, .1].find(v => v * pxPerKm <= 110) || .1;
+      const len = nice * pxPerKm;
+      s += `<g class="sc-scale" transform="translate(${f(W - 18 - len)} 30)"><path d="M0 0v5h${f(len)}v-5"/><text x="${f(len / 2)}" y="-5">${nice < 1 ? nice * 1000 + ' m' : nice + ' km'}</text></g>`;
+
+      this.el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${day.m}월 ${day.d}일 동선 간이 지도">${s}</svg>`;
+    },
+
+    fit() { this.render(this.day); this.highlight(state.active); },
+
+    highlight(key) {
+      this.el.querySelectorAll('[data-key]').forEach(g => g.classList.toggle('is-active', g.dataset.key === key));
+    },
+
+    focus() {}, // 간이 지도는 확대 없이 강조만
+    blur() {},
+  };
+  Schematic.init();
+
+  const NOTES = {
+    nokey: '<b>간이 지도 미리보기</b> · <code>GOOGLE_MAPS_API_KEY</code>에 키를 넣으면 실제 Google 지도로 바뀝니다.',
+    auth: '<b>Google 지도 인증 실패</b> · API 키, Maps JavaScript API 사용 설정, 결제 계정, 웹사이트 제한을 확인하세요. 지금은 간이 지도로 보여드려요.',
+    error: '<b>Google 지도를 불러오지 못했어요</b> · 네트워크를 확인하세요. 지금은 간이 지도로 보여드려요.',
+  };
+
+  function useSchematic(reason) {
+    $('#mapLoading').hidden = true;
+    $('#mapNoteText').innerHTML = NOTES[reason] || NOTES.error;
+    $('#mapNote').hidden = false;
+    if (view === Schematic) return;
+    GMap.clear();
+    $('#gmap').hidden = true;
+    Schematic.el.hidden = false;
+    view = Schematic;
+    Schematic.render(DAYS[state.idx]);
+    Schematic.highlight(state.active);
+  }
+  $('#mapNoteClose').addEventListener('click', () => {
+    $('#mapNote').hidden = true;
+    if (view === Schematic) Schematic.fit();
+  });
+
+  // API 키가 틀렸거나 제한에 걸리면 Google이 이 함수를 호출합니다
+  window.gm_authFailure = () => useSchematic('auth');
+
+  async function startMap() {
+    const key = (GOOGLE_MAPS_API_KEY || '').trim();
+    if (!key || key === 'YOUR_API_KEY') { useSchematic('nokey'); return; }
+    try {
+      await loadGoogleMaps();
+      await GMap.init($('#gmap'));
+      if (view === Schematic) return; // 로드 중 인증 실패
+      $('#mapLoading').hidden = true;
+      view = GMap;
+      GMap.render(DAYS[state.idx]);
+      GMap.fit();
+    } catch (err) {
+      console.warn(err);
+      useSchematic('error');
+    }
+  }
+
+  /* ------------------------------------------------------------------
+   * 시작
+   * ------------------------------------------------------------------ */
+  renderTabs();
+  setWithLodge(state.withLodge);
+  const fromHash = hashIdx();
+  selectDay(fromHash >= 0 ? fromHash : Math.max(0, todayIdx()), { hash: fromHash < 0 });
+  startMap();
+
+  addEventListener('hashchange', () => {
+    const i = hashIdx();
+    if (i >= 0 && i !== state.idx) selectDay(i, { hash: false });
+  });
+  mqDark.addEventListener('change', () => {
+    if (!view) return;
+    view.render(DAYS[state.idx]);
+    select(null);
+  });
+})();
+</script>
+</body>
+</html>

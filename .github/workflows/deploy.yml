@@ -1,0 +1,67 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 저장소에는 'YOUR_API_KEY' 그대로 두고, 배포본에만 시크릿 값을 넣는다.
+      - name: Build (API 키 주입)
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          GOOGLE_MAP_ID: ${{ secrets.GOOGLE_MAP_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          cp index.html _site/index.html
+
+          if [ -n "${GOOGLE_MAPS_API_KEY}" ]; then
+            if ! [[ "${GOOGLE_MAPS_API_KEY}" =~ ^[A-Za-z0-9_-]+$ ]]; then
+              echo "::error::GOOGLE_MAPS_API_KEY 형식이 올바르지 않습니다."; exit 1
+            fi
+            sed -i "s|^const GOOGLE_MAPS_API_KEY = 'YOUR_API_KEY';|const GOOGLE_MAPS_API_KEY = '${GOOGLE_MAPS_API_KEY}';|" _site/index.html
+            if grep -q "^const GOOGLE_MAPS_API_KEY = 'YOUR_API_KEY';" _site/index.html; then
+              echo "::error::API 키를 넣지 못했습니다. index.html의 키 줄 형식을 확인하세요."; exit 1
+            fi
+            echo "API 키 주입 완료"
+          else
+            echo "::warning::GOOGLE_MAPS_API_KEY 시크릿이 없어 간이 지도로 배포됩니다."
+          fi
+
+          if [ -n "${GOOGLE_MAP_ID}" ]; then
+            if ! [[ "${GOOGLE_MAP_ID}" =~ ^[A-Za-z0-9_-]+$ ]]; then
+              echo "::error::GOOGLE_MAP_ID 형식이 올바르지 않습니다."; exit 1
+            fi
+            sed -i "s|^const GOOGLE_MAP_ID = 'DEMO_MAP_ID';|const GOOGLE_MAP_ID = '${GOOGLE_MAP_ID}';|" _site/index.html
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
