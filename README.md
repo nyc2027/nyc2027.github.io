@@ -1,6 +1,7 @@
 # 뉴욕 겨울 동선 지도
 
 2026.12.27 ~ 2027.01.02 뉴욕 여행 동선을 날짜별로 보여주는 단일 페이지(`index.html`)입니다.
+주소: https://nyc2027.github.io/
 Google Maps JavaScript API를 쓰고, 빌드 도구 없이 브라우저에서 바로 열립니다.
 
 ## 구조
@@ -25,7 +26,7 @@ gh secret set GOOGLE_MAP_ID         # (선택) 직접 만든 Map ID. 없으면 D
 Google Cloud 콘솔에서 키 제한을 꼭 걸어 주세요.
 
 - API 제한: **Maps JavaScript API**, **Routes API** (실제 도보·지하철 경로에 필요)
-- 웹사이트 제한: `https://<GitHub 사용자명>.github.io/*`
+- 웹사이트 제한: `https://nyc2027.github.io/*`
 
 ## 실제 경로 (Routes API)
 
