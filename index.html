@@ -824,6 +824,9 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       from: null,
       to: { id: 'woodside', label: '우드사이드 숙소 체크인', tag: '체크인' },
       stops: [
+        { t: '08:15', name: 'JFK 공항 도착', memo: '입국 수속 ~1.5시간', short: 'JFK', airport: true, lat: 40.6413, lng: -73.7781 },
+        { t: '10:00', name: '우드사이드 숙소 (짐 보관)', memo: '🚕 한인 콜택시 권장 · 정액 $50~65 · 전날 예약 (항공편번호 주면 입국장 미팅)', short: '우드사이드 숙소', home: 'woodside', lat: 40.7454, lng: -73.9030,
+          via: 'DRIVING', alt: 'TRANSIT', legNote: '한인 콜택시 (JFK→우드사이드 약 35분)' },
         { t: '12:30', name: '브라이언트파크 · 뉴욕공립도서관', memo: '연말 트리 · 마켓', short: '브라이언트파크', lat: 40.7536, lng: -73.9832 },
         { t: '14:00', name: 'MoMA 한국어 도슨트', memo: '현대미술, ~16:30', short: 'MoMA', lat: 40.7614, lng: -73.9776 },
         { t: '19:00', name: '닉스 경기 @ MSG', memo: '농구 직관', short: 'MSG', lat: 40.7505, lng: -73.9934 },
@@ -898,9 +901,9 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       from: null,
       to: null,
       stops: [
-        { t: '06:00', name: '비스타 LIC 출발', memo: '우버 추천', short: '비스타 LIC', home: 'lic', lat: 40.7490, lng: -73.9400 },
-        { t: '07:15', name: 'JFK 공항', memo: '', short: 'JFK', lat: 40.6413, lng: -73.7781,
-          via: 'DRIVING', alt: 'TRANSIT', legNote: '우버 기준' },
+        { t: '06:00', name: '비스타 LIC 출발', memo: '🚗 우버 권장 · 새벽이라 배차·요금 안정적 · $40~55', short: '비스타 LIC', home: 'lic', lat: 40.7490, lng: -73.9400 },
+        { t: '07:15', name: 'JFK 공항', memo: '10:15 출발 3시간 전 도착', short: 'JFK', airport: true, lat: 40.6413, lng: -73.7781,
+          via: 'DRIVING', alt: 'TRANSIT', legNote: '우버 (LIC→JFK 약 35분) · 10:15 KE 출발' },
       ],
     },
   ];
@@ -1713,7 +1716,11 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     fit() {
       if (!this.day) return;
       const b = new this.core.LatLngBounds();
-      this.day.stops.forEach(s => b.extend({ lat: s.lat, lng: s.lng }));
+      // 공항(JFK)은 멀어서 지도를 과도하게 넓히므로 범위 계산에서 제외.
+      // 단 공항 외 방문지가 1곳 이하인 날(출국일)은 공항도 포함해야 비어 보이지 않음.
+      const core = this.day.stops.filter(s => !s.airport);
+      const fitStops = core.length >= 2 ? core : this.day.stops;
+      fitStops.forEach(s => b.extend({ lat: s.lat, lng: s.lng }));
       if (state.withLodge) dayLodges(this.day).forEach(l => b.extend({ lat: l.lat, lng: l.lng }));
       const pad = mqWide.matches
         ? { top: 90, right: 80, bottom: 60, left: 80 }
@@ -1793,7 +1800,10 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       const noteH = note.hidden ? 0 : note.offsetHeight + (wide ? 12 : 20); // 안내 박스에 가리지 않게
       const pad = { t: 70, r: 70, b: (wide ? 60 : 50) + noteH, l: 46 };
       const lodges = dayLodges(day);
-      const fitPts = state.withLodge ? day.stops.concat(lodges) : day.stops;
+      // 공항은 멀어서 투영을 왜곡하므로, 방문지 2곳 이상이면 범위 계산에서 제외(핀은 가장자리로 클램프됨)
+      const coreStops = day.stops.filter(s => !s.airport);
+      const baseStops = coreStops.length >= 2 ? coreStops : day.stops;
+      const fitPts = state.withLodge ? baseStops.concat(lodges) : baseStops;
 
       const lat0 = fitPts.reduce((a, p) => a + p.lat, 0) / fitPts.length;
       const kx = Math.cos(lat0 * Math.PI / 180);
@@ -1815,7 +1825,9 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       const dark = isDark();
       const lineC = day.color[dark ? 1 : 0];
 
-      const stopXY = day.stops.map(P);
+      // 공항 핀은 멀리 있으므로 숙소처럼 화면 가장자리로 클램프(방향 화살표). rawXY로 경로선 연결은 유지.
+      const rawXY = day.stops.map(P);
+      const stopXY = day.stops.map((st, i) => st.airport ? clamp(rawXY[i]) : rawXY[i]);
       const lodXY = new Map(lodges.map(l => [l.id, clamp(P(l))]));
       const label = (x, text, extra = '') => {
         const left = x > W - 130;
@@ -1847,13 +1859,13 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       });
 
       day.stops.forEach((st, i) => {
-        const [x, y] = stopXY[i];
+        const [x, y, off] = stopXY[i];
         const pin = st.home
           ? `<rect class="sc-lodge-box" x="-14" y="-14" width="28" height="28" rx="8"/>
              <path fill="#fff" transform="translate(-8.5 -9) scale(.72)" d="${HOUSE_PATH}"/>
              <circle cx="13" cy="-13" r="8.5" fill="${day.color[0]}" class="sc-pin"/><text class="sc-badge-num" x="13" y="-13" dy=".35em">${i + 1}</text>`
-          : `<circle r="13" fill="${day.color[0]}" class="sc-pin"/><text class="sc-num" dy=".35em">${i + 1}</text>`;
-        s += `<g class="sc-mk" data-key="s${i}" transform="translate(${f(x)} ${f(y)})"><g class="sc-in">${pin}</g>${label(x, st.short)}</g>`;
+          : `<circle r="13" fill="${day.color[0]}" class="sc-pin"/><text class="sc-num" dy=".35em">${st.airport ? '✈' : (i + 1)}</text>`;
+        s += `<g class="sc-mk${off ? ' is-off' : ''}" data-key="s${i}" transform="translate(${f(x)} ${f(y)})"><g class="sc-in">${pin}</g>${label(x, st.short, off ? ` ${off}` : '')}</g>`;
       });
 
       // 축척 막대 (오른쪽 위)
