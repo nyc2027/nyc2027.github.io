@@ -1247,6 +1247,13 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     return `<span class="lg-lines">${tr.map(bullet).join('<i class="lg-arrow" aria-hidden="true">›</i>')}</span><b>${fmtMs(res.ms)}</b>${meta ? `<span class="leg-meta">${meta}</span>` : ''}${warn ? '<span class="lg-warn" title="운행 시간 주의">!</span>' : ''}`;
   }
 
+  // Google 요금에는 에어트레인(약 $8.75)이 들어갈 때도, 빠질 때도 있어 금액으로 구분
+  function fareText(r) {
+    if (!r.segs.some(s => s.kind === 'transit' && isAirTrain(s))) return `요금 ${r.fare}`;
+    const n = parseFloat(String(r.fare).replace(/[^0-9.]/g, ''));
+    return `요금 ${r.fare}${n >= 8 ? ' (에어트레인 포함)' : ' + 에어트레인 별도'}`;
+  }
+
   function legDetail(leg, res) {
     const dest = legDest(leg);
     const hasTransit = res.segs.some(s => s.kind === 'transit');
@@ -1255,7 +1262,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     if (hasTransit) {
       basis.push(res.timed && leg.time ? `${nyTime(leg.time)} ${leg.timeType === 'arr' ? '도착' : '출발'} 기준` : '현재 시간표 기준');
       if (res.timed && leg.svcNote) basis.push(leg.svcNote);
-      if (res.fare) basis.push(`요금 ${res.fare}${res.segs.some(s => s.kind === 'transit' && isAirTrain(s)) ? ' + 에어트레인 별도' : ''}`);
+      if (res.fare) basis.push(fareText(res));
       body = stepsHtml(res, dest);
     } else if (res.mode === 'DRIVING') {
       basis.push(`약 ${fmtMs(res.ms)} · ${fmtM(res.m)}`, '교통 상황에 따라 달라져요');
@@ -1269,7 +1276,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     const ar = leg.altLeg && Routes.peek(leg.altLeg);
     if (ar && ar.ok) {
       const ab = [ar.timed ? `${nyTime(leg.altLeg.time)} 출발 기준` : '현재 시간표 기준'];
-      if (ar.fare) ab.push(`요금 ${ar.fare}${ar.segs.some(s => s.kind === 'transit' && isAirTrain(s)) ? ' + 에어트레인 별도' : ''}`);
+      if (ar.fare) ab.push(fareText(ar));
       alt = `<div class="leg-alt"><p class="leg-alt-title">대중교통으로 가려면 · 약 ${fmtMs(ar.ms)}</p>
         <p class="leg-basis">${ab.map(esc).join(' · ')}</p>${stepsHtml(ar, dest)}
         <a class="leg-link" href="${esc(gmDir(leg.altLeg, 'TRANSIT'))}" target="_blank" rel="noopener">대중교통 길안내 열기</a></div>`;
