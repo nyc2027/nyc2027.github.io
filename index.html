@@ -344,6 +344,22 @@
     color: #1f3a5f;
     font: 600 11px/1 var(--f-body);
   }
+  /* "보이면 먹기" 참고 핀 (동선 비연결) */
+  .mk-near { filter: drop-shadow(0 1px 2px rgba(8, 20, 40, .3)); }
+  .mk-near .mk-pin {
+    width: 25px;
+    height: 25px;
+    background: #fff;
+    border: 2px dashed var(--c);
+    font-size: 14px;
+  }
+  .mk-near .mk-pin::after { border-top-color: #fff; }
+  .mk-near .mk-tag {
+    top: 4px;
+    padding: 3px 6px;
+    border: 1px dashed var(--c);
+    font-size: 10px;
+  }
 
   /* InfoWindow */
   .gm-style .gm-style-iw-c {
@@ -406,6 +422,9 @@
   .sc-lodge-box { fill: var(--lodge); stroke: #fff; stroke-width: 2.5; }
   .sc-num { fill: #fff; font: 700 13px var(--f-head); text-anchor: middle; }
   .sc-badge-num { fill: #fff; font: 700 10px var(--f-head); text-anchor: middle; }
+  .sc-near-pin { fill: var(--surface); stroke-width: 2; stroke-dasharray: 3 2.5; }
+  .sc-near-emo { font-size: 12px; text-anchor: middle; }
+  .sc-near .sc-label { fill: var(--muted); }
   .sc-label {
     font: 600 11.5px var(--f-body);
     fill: var(--ink);
@@ -731,6 +750,31 @@
     color: var(--muted);
     word-break: keep-all;
   }
+  /* "보이면 먹기" 참고 먹거리 */
+  .near-note {
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    background: var(--surface-2);
+  }
+  .near-head {
+    margin: 0 0 8px;
+    font: 700 13px/1.3 var(--f-head);
+    color: var(--ink);
+  }
+  .near-head em {
+    font: 500 11px/1 var(--f-body);
+    font-style: normal;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  .near-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+  .near-list li { display: flex; gap: 9px; align-items: baseline; }
+  .near-emo { flex: none; font-size: 15px; line-height: 1.2; }
+  .near-txt { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 12.5px; color: var(--ink); word-break: keep-all; }
+  .near-txt b { font-weight: 700; }
+  .near-txt span { color: var(--muted); }
 
   /* ---------- 데스크톱: 왼쪽 사이드바 + 오른쪽 지도 ---------- */
   @media (min-width: 960px) {
@@ -831,6 +875,9 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         { t: '14:00', name: 'MoMA 한국어 도슨트', memo: '현대미술, ~16:30', short: 'MoMA', lat: 40.7614, lng: -73.9776 },
         { t: '19:00', name: '닉스 경기 @ MSG', memo: '농구 직관', short: 'MSG', lat: 40.7505, lng: -73.9934 },
       ],
+      nearby: [
+        { name: 'Ess-a-Bagel (32가)', emoji: '🥯', memo: 'MSG 근처 · 일요일도 영업 (칙필레는 일요일 휴무)', lat: 40.7487, lng: -73.9893 },
+      ],
     },
     {
       y: 2026, m: 12, d: 28, dow: '월', title: '미술관 & 뮤지컬', badge: '피크데이', base: '우드사이드', back: '22:00',
@@ -841,6 +888,10 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         { t: '10:30', name: '메트 한국어 도슨트', memo: '~13:00', short: '메트', lat: 40.7794, lng: -73.9632 },
         { t: '15:00', name: '센트럴파크', memo: '베데스다 테라스 · 보우 브릿지', short: '센트럴파크', lat: 40.7736, lng: -73.9712 },
         { t: '19:00', name: '위키드 @ 거슈윈 시어터', memo: '~21:45', short: '거슈윈 시어터', lat: 40.7593, lng: -73.9845 },
+      ],
+      nearby: [
+        { name: 'Ess-a-Bagel (3번가)', emoji: '🥯', memo: '메트·센트럴파크 전후 아침', lat: 40.7542, lng: -73.9722 },
+        { name: '칙필레 (8번가/48가)', emoji: '🐔', memo: '위키드 전후 극장가', lat: 40.7578, lng: -73.9896 },
       ],
     },
     {
@@ -856,6 +907,9 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
           via: 'WALKING', through: [[40.7061, -73.9969]], legNote: '브루클린 브리지 보행로' },
         { t: '16:30', name: "L'industrie 피자", memo: '🍕 오후 간식 · 뉴욕 top 조각피자 · 윌리엄스버그 원조점 · 조각 하나 가볍게', short: "L'industrie", lat: 40.7116, lng: -73.9579 },
         { t: '18:00', name: '피터루거 스테이크하우스', memo: '🥩 1887년 뉴욕 최고 명성 · 동행과 2인 포션 · 현금만 · 예약 필수', short: '피터루거', lat: 40.7099, lng: -73.9625 },
+      ],
+      nearby: [
+        { name: 'Ess-a-Bagel (월가)', emoji: '🥯', memo: '페리·월가 황소 근처 아침', lat: 40.7087, lng: -74.0111 },
       ],
     },
     {
@@ -873,6 +927,9 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         { t: '19:30', name: "McSorley's Old Ale House", memo: '1854년 역사적 펍 · 라이트/다크 맥주 · 현금만', short: "McSorley's", lat: 40.7287, lng: -73.9896 },
         { t: '21:00', name: '재즈바', memo: '웨스트빌리지, 뱅가드 or 스몰스 · 한 세트(1~1.5h), 자정 전 마무리(볼드랍 전날)', short: '재즈바', lat: 40.7357, lng: -74.0014 },
       ],
+      nearby: [
+        { name: '칙필레 (6번가/42가)', emoji: '🐔', memo: '써밋 오전 전후', lat: 40.7517, lng: -73.9861 },
+      ],
     },
     {
       y: 2026, m: 12, d: 31, dow: '목', title: '볼드랍', base: '비스타 LIC', back: '00:30',
@@ -882,6 +939,10 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       stops: [
         { t: '09:20', name: 'BCD 순두부', memo: 'K타운, 든든하게', short: 'BCD 순두부', lat: 40.7475, lng: -73.9860 },
         { t: '10:00', name: '타임스스퀘어 볼드랍', memo: '10시 진입 ~ 자정', short: '타임스스퀘어', lat: 40.7580, lng: -73.9855 },
+      ],
+      nearby: [
+        { name: 'Ess-a-Bagel (32가)', emoji: '🥯', memo: 'BCD 근처 아침', lat: 40.7487, lng: -73.9893 },
+        { name: '칙필레 (8번가/42가)', emoji: '🐔', memo: '타임스스퀘어 진입 전', lat: 40.7578, lng: -73.9896 },
       ],
     },
     {
@@ -945,6 +1006,17 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     day.stops.forEach((s, i) => rows.push({ key: 's' + i, kind: 'stop', n: i + 1, ...s }));
     if (day.to) rows.push(lodgeRow(day.to, 'to'));
     return rows;
+  }
+
+  // "보이면 먹기" — 동선과 무관한 참고 먹거리 (메모 + 지도 점선 핀)
+  function nearbyHtml(day) {
+    if (!day.nearby || !day.nearby.length) return '';
+    const items = day.nearby.map(n =>
+      `<li><span class="near-emo">${n.emoji || '📍'}</span><span class="near-txt"><b>${esc(n.name)}</b>${n.memo ? `<span>${esc(n.memo)}</span>` : ''}</span></li>`
+    ).join('');
+    return `<div class="near-note">
+      <p class="near-head">👀 보이면 먹기 <em>동선과 무관 · 지도엔 점선 핀</em></p>
+      <ul class="near-list">${items}</ul></div>`;
   }
 
   // 그날 지도에 찍을 숙소 마커 (출발·복귀 숙소가 같으면 하나)
@@ -1470,6 +1542,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         <div class="day-lines" id="dayLines" hidden></div>
       </header>
       <ol class="stops">${rowHtml}</ol>
+      ${nearbyHtml(day)}
       <p class="panel-foot">장소를 누르면 지도에서 확대되고, 장소 사이의 이동 칸을 누르면 지하철 타는 법이 펼쳐집니다.
         지도 선은 실제 경로(지하철은 노선 색, 도보는 점선)이고, 경로를 못 불러오면 직선으로 보여요.
         시간은 일정의 도착 시각 기준으로 계산한 참고용이며 실시간 시간표는 아닙니다.</p>
@@ -1560,6 +1633,13 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
     el.className = 'mk mk-lodge';
     if (badgeColor) el.style.setProperty('--b', badgeColor);
     el.innerHTML = `<div class="mk-pin">${HOUSE}${n ? `<b class="mk-badge">${n}</b>` : ''}</div>${tag ? `<span class="mk-tag">${esc(tag)}</span>` : ''}`;
+    return el;
+  }
+  function nearbyPin(nb, color) {
+    const el = document.createElement('div');
+    el.className = 'mk mk-near';
+    el.style.setProperty('--c', color);
+    el.innerHTML = `<div class="mk-pin">${nb.emoji || '📍'}</div><span class="mk-tag">${esc(nb.name)}</span>`;
     return el;
   }
 
@@ -1653,6 +1733,13 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         const el = s.home ? lodgePin(null, i + 1, day.color[0]) : stopPin(i + 1, day.color[0]);
         this.mark('s' + i, s, el, 100 + i, `${i + 1}. ${s.name}`);
       });
+      // "보이면 먹기" 참고 핀 — 경로선에 연결하지 않고 위치만 표시 (클릭 선택 없음)
+      (day.nearby || []).forEach((nb, i) => {
+        const el = nearbyPin(nb, day.color[0]);
+        const pos = { lat: nb.lat, lng: nb.lng };
+        const m = new this.AME({ map: this.map, position: pos, content: el, zIndex: 30 + i, title: `${nb.name} · ${nb.memo || '보이면 먹기'}` });
+        this.marks.set('n' + i, { m, el, z: 30 + i, pos });
+      });
     },
 
     // 이동 구간: 실제 경로가 있으면 지하철은 노선 색 실선, 도보는 점선. 없으면 직선(숙소 구간은 점선).
@@ -1730,6 +1817,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       const core = this.day.stops.filter(s => !s.airport);
       const fitStops = core.length >= 2 ? core : this.day.stops;
       fitStops.forEach(s => b.extend({ lat: s.lat, lng: s.lng }));
+      (this.day.nearby || []).forEach(n => b.extend({ lat: n.lat, lng: n.lng })); // 참고 핀도 화면에 보이게
       if (state.withLodge) dayLodges(this.day).forEach(l => b.extend({ lat: l.lat, lng: l.lng }));
       const pad = mqWide.matches
         ? { top: 90, right: 80, bottom: 60, left: 80 }
@@ -1812,7 +1900,8 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       // 공항은 멀어서 투영을 왜곡하므로, 방문지 2곳 이상이면 범위 계산에서 제외(핀은 가장자리로 클램프됨)
       const coreStops = day.stops.filter(s => !s.airport);
       const baseStops = coreStops.length >= 2 ? coreStops : day.stops;
-      const fitPts = state.withLodge ? baseStops.concat(lodges) : baseStops;
+      const withLodgePts = state.withLodge ? baseStops.concat(lodges) : baseStops;
+      const fitPts = withLodgePts.concat(day.nearby || []); // 참고 핀도 화면에 들어오게
 
       const lat0 = fitPts.reduce((a, p) => a + p.lat, 0) / fitPts.length;
       const kx = Math.cos(lat0 * Math.PI / 180);
@@ -1875,6 +1964,12 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
              <circle cx="13" cy="-13" r="8.5" fill="${day.color[0]}" class="sc-pin"/><text class="sc-badge-num" x="13" y="-13" dy=".35em">${i + 1}</text>`
           : `<circle r="13" fill="${day.color[0]}" class="sc-pin"/><text class="sc-num" dy=".35em">${st.airport ? '✈' : (i + 1)}</text>`;
         s += `<g class="sc-mk${off ? ' is-off' : ''}" data-key="s${i}" transform="translate(${f(x)} ${f(y)})"><g class="sc-in">${pin}</g>${label(x, st.short, off ? ` ${off}` : '')}</g>`;
+      });
+
+      // "보이면 먹기" 참고 핀 — 경로선에 연결하지 않고 위치만 (점선 테두리 + 이모지)
+      (day.nearby || []).forEach((nb) => {
+        const [x, y, off] = clamp(P(nb));
+        s += `<g class="sc-mk sc-near" transform="translate(${f(x)} ${f(y)})"><g class="sc-in"><circle r="11" class="sc-near-pin" stroke="${day.color[0]}"/><text class="sc-near-emo" dy=".35em">${nb.emoji || '📍'}</text></g>${label(x, nb.name, off ? ` ${off}` : '')}</g>`;
       });
 
       // 축척 막대 (오른쪽 위)
