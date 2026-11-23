@@ -775,6 +775,10 @@
   .near-txt { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 12.5px; color: var(--ink); word-break: keep-all; }
   .near-txt b { font-weight: 700; }
   .near-txt span { color: var(--muted); }
+  /* 산책 길 (먹거리 핀과 구분) */
+  .near-walk { border-color: rgba(13, 148, 136, .45); }
+  .near-walk .near-head { color: #0f9e8e; }
+  .sc-walk .sc-label { fill: #0f9e8e; }
 
   /* ---------- 데스크톱: 왼쪽 사이드바 + 오른쪽 지도 ---------- */
   @media (min-width: 960px) {
@@ -918,6 +922,9 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         { name: 'Russ & Daughters', emoji: '🐟', memo: '1914년 훈제연어·베이글 성지 · 카츠 바로 옆 · ~오후 4시(점심만)', lat: 40.7226, lng: -73.9883 },
         { name: 'Doughnut Plant', emoji: '🍩', memo: '뉴욕 대표 수제도넛 · LES 그랜드 St', lat: 40.7163, lng: -73.9886 },
         { name: 'Nom Wah Tea Parlor', emoji: '🥟', memo: '1920년 뉴욕 최고(最古) 딤섬 · 차이나타운 · 현금/아멕스만', lat: 40.7145, lng: -73.9982 },
+        { name: '스톤 스트리트', emoji: '🚶', kind: 'walk', memo: 'FiDi 자갈길 펍 거리 · 유럽 골목 감성', lat: 40.7043, lng: -74.0102 },
+        { name: '도이어스 St', emoji: '📸', kind: 'walk', memo: '차이나타운 굽은 골목 · 포토스팟', lat: 40.7144, lng: -73.9979 },
+        { name: '브루클린 하이츠 프롬나드', emoji: '🌉', kind: 'walk', memo: '맨해튼 스카이라인 조망 산책로 · 덤보에서 도보', lat: 40.6977, lng: -73.9973 },
       ],
     },
     {
@@ -943,6 +950,7 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         { name: 'Los Tacos No.1 (첼시마켓)', emoji: '🌮', memo: '뉴욕 최고 타코 · 첼시마켓 안 · 아도바다/카르네아사다', lat: 40.7422, lng: -74.0060 },
         { name: "Veniero's", emoji: '🍰', memo: '1894년 카놀리·이탈리안 페이스트리 · 이스트빌리지 · 밤 10~11시까지', lat: 40.7294, lng: -73.9845 },
         { name: "Artichoke Basille's", emoji: '🍕', memo: '거대 아티초크 크림 슬라이스 · 이스트빌리지 · 새벽 5시까지', lat: 40.7322, lng: -73.9838 },
+        { name: '웨스트빌리지 자갈길', emoji: '🚶', kind: 'walk', memo: 'Grove Court·Bedford St·Perry St · 브라운스톤·Friends 건물', lat: 40.7323, lng: -74.0059 },
       ],
     },
     {
@@ -980,6 +988,8 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
         { name: 'Levain Bakery', emoji: '🍪', memo: '전설의 꾸덕 6oz 초코칩 쿠키 · 소호 근처', lat: 40.7262, lng: -73.9947 },
         { name: "Lombardi's", emoji: '🍕', memo: '미국 1호 피자집(1905 석탄화덕) · 놀리타 · 홀피자/현금만', lat: 40.7216, lng: -73.9956 },
         { name: 'Lafayette (베이커리)', emoji: '🥐', memo: '바이럴 피스타치오 휠 크루아상 · 노호 · 밤 10시까지', lat: 40.7276, lng: -73.9937 },
+        { name: '5번가 홀리데이 윈도우 · Saks', emoji: '🎄', kind: 'walk', memo: 'Saks 외벽 무료 라이트쇼(저녁)·록펠러 트리 건너편 · 611 5th Ave · 탑오브더록 옆', lat: 40.7581, lng: -73.9773 },
+        { name: '소호 Greene St', emoji: '🚶', kind: 'walk', memo: '주철 건축·부티크 자갈길', lat: 40.7218, lng: -74.0021 },
       ],
     },
     {
@@ -1039,12 +1049,13 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
   // "보이면 먹기" — 동선과 무관한 참고 먹거리 (메모 + 지도 점선 핀)
   function nearbyHtml(day) {
     if (!day.nearby || !day.nearby.length) return '';
-    const items = day.nearby.map(n =>
-      `<li><span class="near-emo">${n.emoji || '📍'}</span><span class="near-txt"><b>${esc(n.name)}</b>${n.memo ? `<span>${esc(n.memo)}</span>` : ''}</span></li>`
-    ).join('');
-    return `<div class="near-note">
-      <p class="near-head">👀 보이면 먹기 <em>동선과 무관 · 지도엔 점선 핀</em></p>
-      <ul class="near-list">${items}</ul></div>`;
+    const row = n => `<li><span class="near-emo">${n.emoji || '📍'}</span><span class="near-txt"><b>${esc(n.name)}</b>${n.memo ? `<span>${esc(n.memo)}</span>` : ''}</span></li>`;
+    const eats = day.nearby.filter(n => n.kind !== 'walk');
+    const walks = day.nearby.filter(n => n.kind === 'walk');
+    let out = '';
+    if (eats.length) out += `<div class="near-note"><p class="near-head">👀 보이면 먹기 <em>동선과 무관 · 지도엔 점선 핀</em></p><ul class="near-list">${eats.map(row).join('')}</ul></div>`;
+    if (walks.length) out += `<div class="near-note near-walk"><p class="near-head">🚶 걸어볼 길 <em>동선 근처 · 지도엔 점선 핀</em></p><ul class="near-list">${walks.map(row).join('')}</ul></div>`;
+    return out;
   }
 
   // 그날 지도에 찍을 숙소 마커 (출발·복귀 숙소가 같으면 하나)
@@ -1665,8 +1676,8 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
   }
   function nearbyPin(nb, color) {
     const el = document.createElement('div');
-    el.className = 'mk mk-near';
-    el.style.setProperty('--c', color);
+    el.className = 'mk mk-near' + (nb.kind === 'walk' ? ' mk-walk' : '');
+    el.style.setProperty('--c', nb.kind === 'walk' ? '#0d9488' : color);
     el.innerHTML = `<div class="mk-pin">${nb.emoji || '📍'}</div><span class="mk-tag">${esc(nb.name)}</span>`;
     return el;
   }
@@ -1997,7 +2008,8 @@ const GOOGLE_MAP_ID = 'DEMO_MAP_ID';
       // "보이면 먹기" 참고 핀 — 경로선에 연결하지 않고 위치만 (점선 테두리 + 이모지)
       (day.nearby || []).forEach((nb) => {
         const [x, y, off] = clamp(P(nb));
-        s += `<g class="sc-mk sc-near" transform="translate(${f(x)} ${f(y)})"><g class="sc-in"><circle r="11" class="sc-near-pin" stroke="${day.color[0]}"/><text class="sc-near-emo" dy=".35em">${nb.emoji || '📍'}</text></g>${label(x, nb.name, off ? ` ${off}` : '')}</g>`;
+        const nc = nb.kind === 'walk' ? '#0d9488' : day.color[0];
+        s += `<g class="sc-mk sc-near${nb.kind === 'walk' ? ' sc-walk' : ''}" transform="translate(${f(x)} ${f(y)})"><g class="sc-in"><circle r="11" class="sc-near-pin" stroke="${nc}"/><text class="sc-near-emo" dy=".35em">${nb.emoji || '📍'}</text></g>${label(x, nb.name, off ? ` ${off}` : '')}</g>`;
       });
 
       // 축척 막대 (오른쪽 위)
